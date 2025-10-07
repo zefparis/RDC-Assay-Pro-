@@ -1,4 +1,5 @@
 {
+  "extends": "./tsconfig.json",
   "compilerOptions": {
     "target": "ES2020",
     "module": "CommonJS",
@@ -10,18 +11,13 @@
       "@/*": ["*"]
     },
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
+    "sourceMap": true,
     "skipLibCheck": true,
     "strict": false,
-    "noImplicitAny": false,
-    "strictNullChecks": false,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
+    "declaration": false,
+    "removeComments": true
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/__tests__/**"],
-  "ts-node": {
-    "require": ["tsconfig-paths/register"]
-  }
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/__tests__/**"]
 }

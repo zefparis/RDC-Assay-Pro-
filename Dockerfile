@@ -14,19 +14,23 @@ COPY backend/prisma ./backend/prisma/
 # Set working directory to backend
 WORKDIR /app/backend
 
-# Install dependencies including tsc-alias
-RUN npm install && npm install -g tsc-alias
+# Install dependencies
+RUN npm ci --only=production
 
 # Generate Prisma client
 RUN npx prisma generate
 
-# Copy backend source code
+# Install dev dependencies for build
+RUN npm install --only=dev
+
+# Copy backend source code and configs
 COPY backend/src ./src/
 COPY backend/tsconfig.json ./
+COPY backend/tsconfig.build.json ./
 COPY backend/.env.example ./
 
-# Build the application - FORCE SUCCESS
-RUN npm run build || (echo "Build failed but continuing..." && npx tsc --noEmit false --skipLibCheck || true)
+# Build the application with tsc-alias
+RUN npm run build
 
 # Try to push database schema (ignore errors)
 RUN npx prisma db push --accept-data-loss || echo "Database push failed, will try at runtime"
