@@ -1,0 +1,19 @@
+# Ignore frontend files when building backend
+../src/
+../public/
+../styles/
+../components/
+../app/
+../package.json
+../package-lock.json
+../next.config.js
+../tailwind.config.js
+../tsconfig.json
+../.next/
+../node_modules/
+
+# Ignore other backend instances
+../backend/
+
+# Keep only current backend files
+!./
