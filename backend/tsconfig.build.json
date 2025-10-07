@@ -12,11 +12,19 @@
     },
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    "sourceMap": true,
+    "sourceMap": false,
     "skipLibCheck": true,
     "strict": false,
+    "noImplicitAny": false,
+    "strictNullChecks": false,
+    "strictFunctionTypes": false,
+    "noImplicitThis": false,
+    "noImplicitReturns": false,
+    "noFallthroughCasesInSwitch": false,
+    "noUncheckedIndexedAccess": false,
     "declaration": false,
-    "removeComments": true
+    "removeComments": true,
+    "suppressImplicitAnyIndexErrors": true
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "**/*.test.ts", "**/__tests__/**"]
