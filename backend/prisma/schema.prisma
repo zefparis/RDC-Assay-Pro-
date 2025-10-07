@@ -1,0 +1,190 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum SampleStatus {
+  RECEIVED
+  PREP
+  ANALYZING
+  QA_QC
+  REPORTED
+  CANCELLED
+}
+
+enum MineralType {
+  CU  // Copper
+  CO  // Cobalt
+  LI  // Lithium
+  AU  // Gold
+  SN  // Tin
+  TA  // Tantalum
+  W   // Tungsten
+  ZN  // Zinc
+  PB  // Lead
+  NI  // Nickel
+}
+
+enum Unit {
+  PERCENT     // %
+  GRAMS_PER_TON // g/t
+  PPM         // ppm
+  OUNCES_PER_TON // oz/t
+}
+
+enum UserRole {
+  CLIENT
+  ADMIN
+  ANALYST
+  SUPERVISOR
+}
+
+model User {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  password    String
+  name        String
+  role        UserRole @default(CLIENT)
+  company     String?
+  phone       String?
+  avatar      String?
+  isActive    Boolean  @default(true)
+  isVerified  Boolean  @default(false)
+  lastLoginAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  samples     Sample[]
+  reports     Report[]
+  activities  Activity[]
+  refreshTokens RefreshToken[]
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("refresh_tokens")
+}
+
+model Sample {
+  id          String       @id @default(cuid())
+  sampleCode  String       @unique
+  mineral     MineralType
+  site        String
+  status      SampleStatus @default(RECEIVED)
+  grade       Float?
+  unit        Unit
+  mass        Float
+  notes       String?
+  clientId    String
+  analystId   String?
+  priority    Int          @default(1) // 1=low, 2=medium, 3=high
+  receivedAt  DateTime     @default(now())
+  dueDate     DateTime?
+  completedAt DateTime?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  // Relations
+  client      User         @relation(fields: [clientId], references: [id])
+  timeline    TimelineEvent[]
+  documents   SampleDocument[]
+  report      Report?
+
+  @@map("samples")
+}
+
+model TimelineEvent {
+  id        String   @id @default(cuid())
+  sampleId  String
+  status    SampleStatus
+  notes     String?
+  userId    String?
+  timestamp DateTime @default(now())
+
+  sample Sample @relation(fields: [sampleId], references: [id], onDelete: Cascade)
+
+  @@map("timeline_events")
+}
+
+model SampleDocument {
+  id          String   @id @default(cuid())
+  sampleId    String
+  filename    String
+  originalName String
+  mimeType    String
+  size        Int
+  path        String
+  uploadedBy  String
+  uploadedAt  DateTime @default(now())
+
+  sample Sample @relation(fields: [sampleId], references: [id], onDelete: Cascade)
+
+  @@map("sample_documents")
+}
+
+model Report {
+  id          String   @id @default(cuid())
+  sampleId    String   @unique
+  reportCode  String   @unique
+  grade       Float
+  unit        Unit
+  certified   Boolean  @default(false)
+  hash        String   @unique
+  qrCode      String?
+  pdfPath     String?
+  issuedBy    String
+  issuedAt    DateTime @default(now())
+  validUntil  DateTime?
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  sample      Sample   @relation(fields: [sampleId], references: [id])
+  issuedByUser User    @relation(fields: [issuedBy], references: [id])
+
+  @@map("reports")
+}
+
+model Activity {
+  id        String   @id @default(cuid())
+  userId    String
+  action    String   // "created_sample", "updated_sample", "generated_report", etc.
+  entity    String   // "sample", "report", "user"
+  entityId  String
+  details   Json?    // Additional details about the action
+  ipAddress String?
+  userAgent String?
+  timestamp DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("activities")
+}
+
+model SystemConfig {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String
+  description String?
+  updatedAt DateTime @updatedAt
+
+  @@map("system_config")
+}
