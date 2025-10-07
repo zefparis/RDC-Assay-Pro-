@@ -93,3 +93,6 @@ backend/.env.local
 !backend/.env.example
 !backend/railway.json
 !backend/Procfile
+
+# Temporarily ignore frontend package-lock.json for Railway
+package-lock.json
