@@ -6,7 +6,7 @@ import compression from 'compression';
 import { config } from '@/config/environment';
 import { logger } from '@/utils/logger';
 import { errorHandler } from '@/middleware/errorHandler';
-import { rateLimiter } from '@/middleware/rateLimiter';
+import rateLimiter from '@/middleware/rateLimiter';
 import { setupSwagger } from '@/config/swagger';
 import routes from '@/routes';
 

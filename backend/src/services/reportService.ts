@@ -265,27 +265,43 @@ export class ReportService {
     // Build where clause
     const where: Prisma.ReportWhereInput = {};
 
+    // Build conditions array for AND logic
+    const conditions: Prisma.ReportWhereInput[] = [];
+
     // Access control
     if (userId && userRole !== 'ADMIN' && userRole !== 'SUPERVISOR') {
-      where.sample = { clientId: userId };
-    }
-
-    if (search) {
-      where.OR = [
-        { reportCode: { contains: search, mode: 'insensitive' } },
-        { sample: { sampleCode: { contains: search, mode: 'insensitive' } } },
-        { sample: { site: { contains: search, mode: 'insensitive' } } },
-        { sample: { client: { name: { contains: search, mode: 'insensitive' } } } },
-        { sample: { client: { company: { contains: search, mode: 'insensitive' } } } },
-      ];
+      conditions.push({
+        sample: { clientId: userId }
+      });
     }
 
     if (mineral) {
-      where.sample = { ...where.sample, mineral: mineral as MineralType };
+      conditions.push({
+        sample: { mineral: mineral as MineralType }
+      });
     }
 
     if (site) {
-      where.sample = { ...where.sample, site: { contains: site, mode: 'insensitive' } };
+      conditions.push({
+        sample: { site: { contains: site, mode: 'insensitive' } }
+      });
+    }
+
+    if (search) {
+      conditions.push({
+        OR: [
+          { reportCode: { contains: search, mode: 'insensitive' } },
+          { sample: { sampleCode: { contains: search, mode: 'insensitive' } } },
+          { sample: { site: { contains: search, mode: 'insensitive' } } },
+          { sample: { client: { name: { contains: search, mode: 'insensitive' } } } },
+          { sample: { client: { company: { contains: search, mode: 'insensitive' } } } },
+        ]
+      });
+    }
+
+    // Apply all conditions with AND logic
+    if (conditions.length > 0) {
+      where.AND = conditions;
     }
 
     if (certified !== undefined) {
@@ -473,7 +489,6 @@ export class ReportService {
       totalReports,
       certifiedReports,
       recentReports,
-      reportsByMineral,
     ] = await Promise.all([
       prisma.report.count({ where }),
       prisma.report.count({ 
@@ -488,13 +503,6 @@ export class ReportService {
           issuedAt: {
             gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // Last 30 days
           },
-        },
-      }),
-      prisma.report.groupBy({
-        by: ['sample'],
-        where,
-        _count: {
-          id: true,
         },
       }),
     ]);

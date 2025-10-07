@@ -131,17 +131,8 @@ export class DashboardService {
 
     // Access control for activities
     if (userId && userRole !== 'ADMIN' && userRole !== 'SUPERVISOR') {
-      where.OR = [
-        { userId },
-        { 
-          sample: { clientId: userId }
-        },
-        {
-          report: { 
-            sample: { clientId: userId }
-          }
-        }
-      ];
+      // For non-admin users, only show their own activities
+      where.userId = userId;
     }
 
     const activities = await prisma.activity.findMany({

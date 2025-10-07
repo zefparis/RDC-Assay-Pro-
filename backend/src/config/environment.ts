@@ -10,7 +10,7 @@ const EnvSchema = z.object({
   DATABASE_URL: z.string().min(1, "DATABASE_URL is required"),
   JWT_SECRET: z.string().min(1, "JWT_SECRET is required"),
   JWT_EXPIRES_IN: z.string().default("7d"),
-  JWT_REFRESH_SECRET: z.string().optional(),
+  JWT_REFRESH_SECRET: z.string().default(""),
   JWT_REFRESH_EXPIRES_IN: z.string().default("30d"),
   CORS_ORIGIN: z.string().default("*"),
   MAX_FILE_SIZE: z.string().default("10485760"),
