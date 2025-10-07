@@ -1,0 +1,28 @@
+# Ignore frontend files for backend build
+package.json
+package-lock.json
+src/
+public/
+styles/
+components/
+app/
+next.config.js
+tailwind.config.js
+.next/
+node_modules/
+
+# Keep backend files
+!backend/
+
+# Ignore development files
+.git/
+.vscode/
+.idea/
+*.md
+!backend/*.md
+
+# Ignore logs and temp files
+logs/
+*.log
+tmp/
+temp/
