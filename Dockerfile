@@ -14,8 +14,8 @@ COPY backend/prisma ./backend/prisma/
 # Set working directory to backend
 WORKDIR /app/backend
 
-# Install dependencies
-RUN npm install
+# Install dependencies including tsc-alias
+RUN npm install && npm install -g tsc-alias
 
 # Generate Prisma client
 RUN npx prisma generate
