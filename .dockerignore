@@ -1,28 +1,33 @@
-# Ignore frontend files for backend build
+# Ignore everything except backend
+*
+!backend/
+
+# Ignore backend development files
+backend/node_modules/
+backend/dist/
+backend/.env
+backend/.env.local
+backend/uploads/
+backend/logs/
+
+# Ignore git and IDE files
+.git/
+.vscode/
+.idea/
+
+# Ignore documentation (except backend docs)
+*.md
+!backend/*.md
+!backend/README.md
+
+# Ignore frontend specific files
 package.json
 package-lock.json
+next.config.js
+tailwind.config.js
+.next/
 src/
 public/
 styles/
 components/
 app/
-next.config.js
-tailwind.config.js
-.next/
-node_modules/
-
-# Keep backend files
-!backend/
-
-# Ignore development files
-.git/
-.vscode/
-.idea/
-*.md
-!backend/*.md
-
-# Ignore logs and temp files
-logs/
-*.log
-tmp/
-temp/
