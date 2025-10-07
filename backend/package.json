@@ -7,7 +7,7 @@
     "dev": "nodemon src/server.ts",
     "build": "prisma generate && npx tsc || echo 'Build completed with warnings'",
     "start": "node dist/server.js",
-    "start:prod": "npm run prisma:deploy && npm start",
+    "start:prod": "npm start",
     "test": "jest",
     "test:watch": "jest --watch",
     "lint": "eslint src/**/*.ts",
