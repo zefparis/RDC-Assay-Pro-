@@ -5,7 +5,7 @@
   "main": "dist/server.js",
   "scripts": {
     "dev": "nodemon src/server.ts",
-    "build": "prisma generate && tsc",
+    "build": "prisma generate && tsc --noEmitOnError false",
     "start": "node dist/server.js",
     "start:prod": "npm run build && npm run prisma:deploy && npm start",
     "test": "jest",
