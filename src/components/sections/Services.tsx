@@ -55,7 +55,7 @@ const Services: React.FC = () => {
             {t.services.title}
           </h2>
           <p className="text-xl text-secondary-600 max-w-3xl mx-auto">
-            Solutions complètes d'analyse minière avec traçabilité numérique et certification internationale
+            Solutions complètes d&apos;analyse minière avec traçabilité numérique et certification internationale
           </p>
         </motion.div>
 

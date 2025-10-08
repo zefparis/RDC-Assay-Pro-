@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, ChevronRight, QrCode, CheckCircle2, Clock, AlertCircle } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -16,7 +16,7 @@ const SampleTracker: React.FC = () => {
   const [samples, setSamples] = useState<Sample[]>([]);
   const [error, setError] = useState('');
 
-  const searchSamples = async () => {
+  const searchSamples = useCallback(async () => {
     try {
       setError('');
       setLoading(true);
@@ -27,11 +27,11 @@ const SampleTracker: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [query, t.common.error]);
 
   useEffect(() => {
     searchSamples();
-  }, []);
+  }, [searchSamples]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();

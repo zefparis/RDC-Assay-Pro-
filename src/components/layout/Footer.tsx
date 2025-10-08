@@ -148,7 +148,7 @@ const Footer: React.FC = () => {
           </div>
           <div className="flex gap-6 text-sm text-secondary-400">
             <a href="#" className="hover:text-white transition-colors">Politique de confidentialité</a>
-            <a href="#" className="hover:text-white transition-colors">Conditions d'utilisation</a>
+            <a href="#" className="hover:text-white transition-colors">Conditions d&apos;utilisation</a>
             <a href="#" className="hover:text-white transition-colors">Support</a>
           </div>
         </motion.div>
