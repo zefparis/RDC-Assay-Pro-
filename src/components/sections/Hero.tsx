@@ -33,18 +33,17 @@ const Hero: React.FC = () => {
       </div>
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
-          {/* Content */}
           <div className="space-y-8">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="space-y-6 p-6 max-w-2xl rounded-2xl bg-black/15 backdrop-blur-[1px] md:bg-black/25 md:backdrop-blur-sm"
+              className="space-y-6 p-6 max-w-2xl rounded-2xl bg-black/50 backdrop-blur-sm md:bg-black/60"
             >
-              <h1 className="text-4xl lg:text-6xl font-bold text-blue-900 leading-tight drop-shadow-2xl">
+              <h1 className="text-4xl lg:text-6xl font-extrabold text-white leading-tight drop-shadow-2xl">
                 {t.hero.title}
               </h1>
-              <p className="text-xl text-violet-200 leading-relaxed drop-shadow-xl">
+              <p className="text-xl text-white/90 leading-relaxed drop-shadow-xl">
                 {t.hero.subtitle}
               </p>
             </motion.div>
@@ -66,7 +65,7 @@ const Hero: React.FC = () => {
                 size="lg"
                 variant="outline"
                 onClick={() => document.getElementById('tracking')?.scrollIntoView({ behavior: 'smooth' })}
-                className="border-violet-400 text-violet-200 hover:bg-violet-400/10"
+                className="border-white/70 text-white hover:bg-white/10"
               >
                 {t.hero.trackSample}
               </Button>
@@ -76,9 +75,9 @@ const Hero: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
-              className="flex items-center gap-3 text-sm text-violet-200 opacity-95 drop-shadow-md"
+              className="flex items-center gap-3 text-sm text-white/80 drop-shadow-md"
             >
-              <ShieldCheck className="w-5 h-5 text-violet-300" />
+              <ShieldCheck className="w-5 h-5 text-white/90" />
               <span>{t.hero.features}</span>
             </motion.div>
           </div>
