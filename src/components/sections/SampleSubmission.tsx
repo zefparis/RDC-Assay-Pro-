@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useAuth } from '@/hooks/useAuth';
 import { api } from '@/lib/api';
 import { MineralType, Unit } from '@/types';
 import Button from '@/components/ui/Button';
@@ -25,6 +26,7 @@ type SubmissionForm = z.infer<typeof submissionSchema>;
 
 const SampleSubmission: React.FC = () => {
   const { t } = useTranslation();
+  const { isAuthenticated } = useAuth();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState<{ id: string } | null>(null);
   const [error, setError] = useState('');
@@ -81,8 +83,12 @@ const SampleSubmission: React.FC = () => {
       
       setSuccess({ id: sample.id });
       reset();
-    } catch (err) {
-      setError(t.submission.error);
+    } catch (err: any) {
+      if (err.message?.includes('Access token required') || err.message?.includes('401')) {
+        setError('Veuillez vous connecter pour soumettre un échantillon');
+      } else {
+        setError(err.message || t.submission.error);
+      }
     } finally {
       setLoading(false);
     }
@@ -152,8 +158,15 @@ const SampleSubmission: React.FC = () => {
               </div>
 
               <div className="flex items-center justify-between pt-6 border-t border-secondary-200">
-                <div className="text-sm text-secondary-500">
-                  Endpoint: <code className="bg-secondary-100 px-2 py-1 rounded text-xs">POST /api/samples</code>
+                <div className="flex items-center gap-3">
+                  <div className="text-sm text-secondary-500">
+                    Endpoint: <code className="bg-secondary-100 px-2 py-1 rounded text-xs">POST /api/samples</code>
+                  </div>
+                  {isAuthenticated ? (
+                    <Badge variant="success" size="sm">✓ Connecté</Badge>
+                  ) : (
+                    <Badge variant="warning" size="sm">⚠ Connexion requise</Badge>
+                  )}
                 </div>
                 
                 <Button
@@ -161,6 +174,7 @@ const SampleSubmission: React.FC = () => {
                   loading={loading}
                   size="lg"
                   className="min-w-32"
+                  disabled={!isAuthenticated}
                 >
                   {t.submission.submit}
                 </Button>

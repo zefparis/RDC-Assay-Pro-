@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useAuth } from '@/hooks/useAuth';
 import { api } from '@/lib/api';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
@@ -24,6 +25,7 @@ interface LoginModalProps {
 
 const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
   const { t } = useTranslation();
+  const { login } = useAuth();
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
@@ -49,9 +51,8 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
       const response = await api.login(data.email, data.password);
       console.log('Login successful:', response);
       
-      // Store token (in a real app, use secure storage)
-      localStorage.setItem('auth-token', response.token);
-      localStorage.setItem('user', JSON.stringify(response.user));
+      // Use auth hook to manage state
+      login(response.token, response.user);
       
       // Close modal and reset form
       onClose();

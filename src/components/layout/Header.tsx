@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { LogIn, Menu, X, Globe } from 'lucide-react';
+import { LogIn, LogOut, Menu, X, Globe, User } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useAuth } from '@/hooks/useAuth';
 import Button from '@/components/ui/Button';
 import Badge from '@/components/ui/Badge';
 
@@ -11,6 +12,7 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ onLoginClick }) => {
   const { t, locale, changeLocale } = useTranslation();
+  const { isAuthenticated, user, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navItems = [
@@ -69,16 +71,32 @@ const Header: React.FC<HeaderProps> = ({ onLoginClick }) => {
               {locale.toUpperCase()}
             </Button>
 
-            {/* Login Button */}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onLoginClick}
-              icon={<LogIn className="w-4 h-4" />}
-              className="hidden sm:flex"
-            >
-              {t.nav.login}
-            </Button>
+            {/* Auth Section */}
+            {isAuthenticated ? (
+              <div className="hidden sm:flex items-center gap-2">
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-success-50 border border-success-200 rounded-lg">
+                  <User className="w-4 h-4 text-success-600" />
+                  <span className="text-sm font-medium text-success-800">{user?.name}</span>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={logout}
+                  icon={<LogOut className="w-4 h-4" />}
+                  title="Se déconnecter"
+                />
+              </div>
+            ) : (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onLoginClick}
+                icon={<LogIn className="w-4 h-4" />}
+                className="hidden sm:flex"
+              >
+                {t.nav.login}
+              </Button>
+            )}
 
             {/* Mobile Menu Button */}
             <Button
@@ -119,14 +137,31 @@ const Header: React.FC<HeaderProps> = ({ onLoginClick }) => {
                 >
                   {locale.toUpperCase()}
                 </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={onLoginClick}
-                  icon={<LogIn className="w-4 h-4" />}
-                >
-                  {t.nav.login}
-                </Button>
+                {isAuthenticated ? (
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 px-3 py-1.5 bg-success-50 border border-success-200 rounded-lg">
+                      <User className="w-4 h-4 text-success-600" />
+                      <span className="text-sm font-medium text-success-800">{user?.name}</span>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={logout}
+                      icon={<LogOut className="w-4 h-4" />}
+                    >
+                      Déconnexion
+                    </Button>
+                  </div>
+                ) : (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={onLoginClick}
+                    icon={<LogIn className="w-4 h-4" />}
+                  >
+                    {t.nav.login}
+                  </Button>
+                )}
               </div>
             </div>
           </motion.div>
