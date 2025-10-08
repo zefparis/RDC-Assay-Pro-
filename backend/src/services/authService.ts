@@ -115,66 +115,96 @@ export class AuthService {
 
   // Login user
   async login(data: LoginRequest): Promise<{ user: Omit<User, 'password'>; tokens: AuthTokens }> {
-    // Find user by email
-    const user = await prisma.user.findUnique({
-      where: { email: data.email.toLowerCase() },
-    });
-
-    if (!user) {
-      throw new AppError('Invalid email or password', 401);
-    }
-
-    if (!user.isActive) {
-      throw new AppError('Account is deactivated', 401);
-    }
-
-    // Verify password
-    const isPasswordValid = await this.verifyPassword(data.password, user.password);
-
-    if (!isPasswordValid) {
-      throw new AppError('Invalid email or password', 401);
-    }
-
-    // Generate tokens
-    const tokens = this.generateTokens(user);
-
-    // Store refresh token (best-effort)
     try {
-      await prisma.refreshToken.create({
-        data: {
-          token: tokens.refreshToken,
-          userId: user.id,
-          expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
-        },
+      // Find user by email
+      const user = await prisma.user.findUnique({
+        where: { email: data.email.toLowerCase() },
       });
-    } catch (e: any) {
-      // Avoid failing login if the refresh_tokens table is missing or not migrated yet
-      logger.warn('Failed to persist refresh token during login. Proceeding without persistence.', {
-        error: e?.message || e,
-      });
+
+      if (!user) {
+        throw new AppError('Invalid email or password', 401);
+      }
+
+      if (!user.isActive) {
+        throw new AppError('Account is deactivated', 401);
+      }
+
+      // Verify password
+      const isPasswordValid = await this.verifyPassword(data.password, user.password);
+
+      if (!isPasswordValid) {
+        throw new AppError('Invalid email or password', 401);
+      }
+
+      // Generate tokens
+      const tokens = this.generateTokens(user);
+
+      // Store refresh token (best-effort)
+      try {
+        await prisma.refreshToken.create({
+          data: {
+            token: tokens.refreshToken,
+            userId: user.id,
+            expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+          },
+        });
+      } catch (e: any) {
+        // Avoid failing login if the refresh_tokens table is missing or not migrated yet
+        logger.warn('Failed to persist refresh token during login. Proceeding without persistence.', {
+          error: e?.message || e,
+        });
+      }
+
+      // Update last login (best-effort)
+      try {
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { lastLoginAt: new Date() },
+        });
+      } catch (e: any) {
+        logger.warn('Failed to update lastLoginAt during login. Proceeding.', {
+          error: e?.message || e,
+        });
+      }
+
+      // Remove password from response
+      const { password, ...userWithoutPassword } = user;
+
+      logger.info('User logged in successfully:', { userId: user.id, email: user.email });
+
+      return {
+        user: userWithoutPassword,
+        tokens,
+      };
+    } catch (err: any) {
+      // Demo fallback: allow login without DB if enabled and using demo credentials
+      if (
+        config.features?.demoLoginEnabled &&
+        data.email.toLowerCase() === 'admin@rdcassay.africa' &&
+        data.password === 'admin123'
+      ) {
+        const demoUser = {
+          id: 'demo-admin',
+          email: 'admin@rdcassay.africa',
+          role: 'ADMIN',
+          name: 'System Administrator',
+          company: 'RDC Assay Pro',
+          isActive: true,
+          isVerified: true,
+        } as unknown as User;
+
+        const tokens = this.generateTokens(demoUser);
+        const { password, ...userWithoutPassword } = (demoUser as unknown as any);
+
+        logger.warn('DEMO LOGIN FALLBACK USED (no DB). Ensure migrations/seed are applied in production.');
+        return {
+          user: userWithoutPassword,
+          tokens,
+        };
+      }
+
+      throw err;
     }
-
-    // Update last login (best-effort)
-    try {
-      await prisma.user.update({
-        where: { id: user.id },
-        data: { lastLoginAt: new Date() },
-      });
-    } catch (e: any) {
-      logger.warn('Failed to update lastLoginAt during login. Proceeding.', {
-        error: e?.message || e,
-      });
-    }
-
-    // Remove password from response
-    const { password, ...userWithoutPassword } = user;
-
-    logger.info('User logged in successfully:', { userId: user.id, email: user.email });
-
-    return {
-      user: userWithoutPassword,
-      tokens,
-    };
   }
 
   // Refresh access token

@@ -142,7 +142,7 @@ export const translations: Record<Locale, Translations> = {
       logout: 'Se déconnecter',
     },
     hero: {
-      title: 'Certifier la vérité du minerai — en RDC',
+      title: 'Analyses et certifications minières professionnelles en RDC',
       subtitle: 'Échantillonnage, analyse, certification et traçabilité numérique. Interface client temps réel. Standards internationaux.',
       submitSample: 'Soumettre un échantillon',
       trackSample: 'Suivre un échantillon',
@@ -252,7 +252,7 @@ export const translations: Record<Locale, Translations> = {
       logout: 'Logout',
     },
     hero: {
-      title: 'Certifying mineral truth — in DRC',
+      title: 'Professional mineral analysis and certification in DRC',
       subtitle: 'Sampling, analysis, certification and digital traceability. Real-time client interface. International standards.',
       submitSample: 'Submit a sample',
       trackSample: 'Track a sample',

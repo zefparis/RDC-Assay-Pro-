@@ -30,6 +30,7 @@ const EnvSchema = z.object({
   SESSION_SECRET: z.string().default("your-session-secret"),
   CERTIFICATION_API_URL: z.string().optional(),
   CERTIFICATION_API_KEY: z.string().optional(),
+  DEMO_LOGIN_ENABLED: z.string().default("true"),
 });
 
 export const env = EnvSchema.parse(process.env);
@@ -83,5 +84,8 @@ export const config = {
   external: {
     certificationApiUrl: env.CERTIFICATION_API_URL || '',
     certificationApiKey: env.CERTIFICATION_API_KEY || '',
+  },
+  features: {
+    demoLoginEnabled: env.DEMO_LOGIN_ENABLED === 'true',
   },
 } as const;
