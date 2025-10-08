@@ -50,3 +50,8 @@ export function readBearer(req: NextApiRequest): string | null {
   const m = /^Bearer\s+(.+)/i.exec(h as string);
   return m ? m[1] : null;
 }
+
+export function isBossAuthDisabled(): boolean {
+  const v = process.env.BOSS_AUTH_DISABLED;
+  return v === 'true' || v === '1';
+}

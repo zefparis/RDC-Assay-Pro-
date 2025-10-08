@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { verifyBossToken, readBearer } from '@/lib/server/bossAuth';
+import { verifyBossToken, readBearer, isBossAuthDisabled } from '@/lib/server/bossAuth';
 
 export const config = {
   api: {
@@ -25,11 +25,14 @@ async function getSampleIdByCode(code: string, bossKey: string): Promise<string>
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const bearer = readBearer(req);
-  const cookieToken = req.cookies?.bossToken;
-  const valid = verifyBossToken(bearer || cookieToken);
-  if (!valid) {
-    return res.status(401).json({ error: 'Unauthorized' });
+  const disabled = isBossAuthDisabled();
+  if (!disabled) {
+    const bearer = readBearer(req);
+    const cookieToken = req.cookies?.bossToken;
+    const valid = verifyBossToken(bearer || cookieToken);
+    if (!valid) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
   }
 
   if (req.method !== 'POST') {
