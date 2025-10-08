@@ -39,6 +39,27 @@ export const useAuth = () => {
         localStorage.removeItem('user');
       }
     }
+    const onAuthChanged = () => {
+      try {
+        const t = localStorage.getItem('authToken');
+        const uStr = localStorage.getItem('user');
+        if (t && uStr) {
+          const u = JSON.parse(uStr);
+          setAuthState({ isAuthenticated: true, user: u, token: t });
+        } else {
+          setAuthState({ isAuthenticated: false, user: null, token: null });
+        }
+      } catch {
+        setAuthState({ isAuthenticated: false, user: null, token: null });
+      }
+    };
+    // Listen to custom event (same-tab) and storage (cross-tab)
+    window.addEventListener('rdc-auth-changed', onAuthChanged);
+    window.addEventListener('storage', onAuthChanged as any);
+    return () => {
+      window.removeEventListener('rdc-auth-changed', onAuthChanged);
+      window.removeEventListener('storage', onAuthChanged as any);
+    };
   }, []);
 
   const login = (token: string, user: User) => {
@@ -49,6 +70,9 @@ export const useAuth = () => {
       user,
       token,
     });
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('rdc-auth-changed'));
+    }
   };
 
   const logout = () => {
@@ -59,6 +83,9 @@ export const useAuth = () => {
       user: null,
       token: null,
     });
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('rdc-auth-changed'));
+    }
   };
 
   return {
