@@ -4,6 +4,7 @@ import { ShieldCheck, FlaskConical, TrendingUp, Clock } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
+import Image from 'next/image';
 
 const Hero: React.FC = () => {
   const { t } = useTranslation();
@@ -16,8 +17,20 @@ const Hero: React.FC = () => {
   ];
 
   return (
-    <section className="relative py-20 bg-gradient-to-br from-primary-50 via-white to-secondary-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="relative py-20 overflow-hidden">
+      {/* Background image + overlay */}
+      <div className="absolute inset-0">
+        <Image
+          src="/image/elemental-geochemestry.png"
+          alt="Elemental geochemistry background"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-center"
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-white/85 via-white/80 to-secondary-50/80" />
+      </div>
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Content */}
           <div className="space-y-8">

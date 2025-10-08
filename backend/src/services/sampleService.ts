@@ -280,57 +280,78 @@ export class SampleService {
       if (dateTo) where.receivedAt.lte = new Date(dateTo);
     }
 
-    // Get total count
-    const total = await prisma.sample.count({ where });
+    try {
+      // Get total count
+      const total = await prisma.sample.count({ where });
 
-    // Get paginated results
-    const samples = await prisma.sample.findMany({
-      where,
-      include: {
-        client: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            company: true,
+      // Get paginated results
+      const samples = await prisma.sample.findMany({
+        where,
+        include: {
+          client: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              company: true,
+            },
+          },
+          timeline: {
+            orderBy: {
+              timestamp: 'desc',
+            },
+            take: 1,
+          },
+          report: {
+            select: {
+              id: true,
+              reportCode: true,
+              certified: true,
+              issuedAt: true,
+            },
           },
         },
-        timeline: {
-          orderBy: {
-            timestamp: 'desc',
-          },
-          take: 1,
+        orderBy: {
+          [sortBy]: sortOrder,
         },
-        report: {
-          select: {
-            id: true,
-            reportCode: true,
-            certified: true,
-            issuedAt: true,
-          },
+        skip: (page - 1) * limit,
+        take: limit,
+      });
+
+      const totalPages = Math.ceil(total / limit);
+
+      return {
+        success: true,
+        data: samples,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages,
+          hasNext: page < totalPages,
+          hasPrev: page > 1,
         },
-      },
-      orderBy: {
-        [sortBy]: sortOrder,
-      },
-      skip: (page - 1) * limit,
-      take: limit,
-    });
-
-    const totalPages = Math.ceil(total / limit);
-
-    return {
-      success: true,
-      data: samples,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages,
-        hasNext: page < totalPages,
-        hasPrev: page > 1,
-      },
-    };
+      };
+    } catch (e: any) {
+      if (config.features?.demoLoginEnabled) {
+        logger.warn('DEMO SAMPLES SEARCH FALLBACK USED (no DB). Returning empty result set.', {
+          error: e?.message || e,
+        });
+        return {
+          success: true,
+          data: [],
+          pagination: {
+            page,
+            limit,
+            total: 0,
+            totalPages: 0,
+            hasNext: false,
+            hasPrev: false,
+          },
+        };
+      }
+      throw e;
+    }
   }
 
   // Update sample
