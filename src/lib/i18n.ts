@@ -175,6 +175,38 @@ export interface Translations {
       items: Array<{ q: string; a: string }>;
     };
   };
+
+  // Sample namespace for richer statuses/messages
+  sample?: {
+    status: {
+      received: string;
+      inAnalysis: string;
+      qualityCheck: string;
+      reported: string;
+      delivered: string;
+    };
+    messages?: {
+      awaiting: string;
+      inProgress: string;
+      reportReady: string;
+      delivered: string;
+    };
+  };
+
+  // Admin (bossadmin)
+  bossadmin?: {
+    title: string;
+    loginTitle: string;
+    passwordPlaceholder: string;
+    login: string;
+    invalidKey: string;
+    logout: string;
+    sidebar: { samples: string; reports: string; settings: string };
+    table: { id: string; site: string; mineral: string; status: string; updated: string; actions: string };
+    actions: { view: string; edit: string; delete: string; uploadReport: string; changeStatus: string; save: string };
+    notifications: { statusUpdated: string; reportGenerated: string; deleted: string };
+    searchPlaceholder: string;
+  };
 }
 
 export const translations: Record<Locale, Translations> = {
@@ -356,6 +388,34 @@ export const translations: Record<Locale, Translations> = {
         ],
       },
     },
+    sample: {
+      status: {
+        received: 'Reçu',
+        inAnalysis: 'En analyse',
+        qualityCheck: 'Contrôle qualité',
+        reported: 'Rapport publié',
+        delivered: 'Résultats livrés',
+      },
+      messages: {
+        awaiting: 'En attente d\'analyse',
+        inProgress: 'Analyse en cours',
+        reportReady: 'Rapport disponible',
+        delivered: 'Résultats livrés au client',
+      },
+    },
+    bossadmin: {
+      title: 'Panneau d\'administration',
+      loginTitle: 'Accès laboratoire',
+      passwordPlaceholder: 'Mot de passe administrateur',
+      login: 'Se connecter',
+      invalidKey: 'Clé invalide',
+      logout: 'Se déconnecter',
+      sidebar: { samples: 'Échantillons', reports: 'Rapports', settings: 'Paramètres' },
+      table: { id: 'ID', site: 'Site', mineral: 'Minerai', status: 'Statut', updated: 'Mis à jour', actions: 'Actions' },
+      actions: { view: 'Voir', edit: 'Éditer', delete: 'Supprimer', uploadReport: 'Téléverser rapport', changeStatus: 'Changer statut', save: 'Enregistrer' },
+      notifications: { statusUpdated: 'Statut mis à jour', reportGenerated: 'Rapport généré', deleted: 'Supprimé' },
+      searchPlaceholder: 'Rechercher par code ou site...'
+    },
   },
   en: {
     nav: {
@@ -534,6 +594,34 @@ export const translations: Record<Locale, Translations> = {
           { q: 'Can you access ports?', a: 'Yes, subject to terminal and carrier permissions.' },
         ],
       },
+    },
+    sample: {
+      status: {
+        received: 'Received',
+        inAnalysis: 'In analysis',
+        qualityCheck: 'Quality check',
+        reported: 'Report published',
+        delivered: 'Results delivered',
+      },
+      messages: {
+        awaiting: 'Awaiting analysis',
+        inProgress: 'In progress',
+        reportReady: 'Report available',
+        delivered: 'Results delivered to client',
+      },
+    },
+    bossadmin: {
+      title: 'Admin Panel',
+      loginTitle: 'Laboratory access',
+      passwordPlaceholder: 'Administrator password',
+      login: 'Login',
+      invalidKey: 'Invalid key',
+      logout: 'Logout',
+      sidebar: { samples: 'Samples', reports: 'Reports', settings: 'Settings' },
+      table: { id: 'ID', site: 'Site', mineral: 'Mineral', status: 'Status', updated: 'Updated', actions: 'Actions' },
+      actions: { view: 'View', edit: 'Edit', delete: 'Delete', uploadReport: 'Upload report', changeStatus: 'Change status', save: 'Save' },
+      notifications: { statusUpdated: 'Status updated', reportGenerated: 'Report generated', deleted: 'Deleted' },
+      searchPlaceholder: 'Search by code or site...'
     },
   },
 };

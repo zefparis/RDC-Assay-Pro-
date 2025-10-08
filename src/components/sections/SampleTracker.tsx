@@ -143,10 +143,28 @@ const SampleRow: React.FC<SampleRowProps> = ({ sample }) => {
 
   const getStatusVariant = (status: string) => {
     switch (status) {
-      case 'Reported': return 'success';
-      case 'Analyzing': case 'QA/QC': return 'info';
-      case 'Prep': return 'warning';
-      default: return 'default';
+      case 'Reported':
+        return 'success';
+      case 'In Analysis':
+        return 'info';
+      case 'QA/QC':
+        return 'warning';
+      case 'Delivered':
+        return 'secondary';
+      case 'Received':
+      default:
+        return 'default';
+    }
+  };
+
+  const statusKey = (label: string) => {
+    switch (label) {
+      case 'Received': return 'received';
+      case 'In Analysis': return 'inAnalysis';
+      case 'QA/QC': return 'qualityCheck';
+      case 'Reported': return 'reported';
+      case 'Delivered': return 'delivered';
+      default: return 'received';
     }
   };
 
@@ -178,7 +196,7 @@ const SampleRow: React.FC<SampleRowProps> = ({ sample }) => {
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-4 flex-1">
           <Badge variant={getStatusVariant(sample.status) as any}>
-            {sample.status}
+            {t.sample?.status[statusKey(sample.status) as 'received'] || sample.status}
           </Badge>
           <div className="font-mono font-semibold text-secondary-900">
             {sample.id}
@@ -238,7 +256,7 @@ const SampleRow: React.FC<SampleRowProps> = ({ sample }) => {
                       {getStatusIcon(event.label, event.done)}
                       <div className="text-sm">
                         <span className={`font-medium ${event.done ? 'text-secondary-900' : 'text-secondary-500'}`}>
-                          {event.label}
+                          {t.sample?.status[statusKey(event.label) as 'received'] || event.label}
                         </span>
                         {event.when && (
                           <span className="text-secondary-500 ml-2">• {event.when}</span>
@@ -250,8 +268,26 @@ const SampleRow: React.FC<SampleRowProps> = ({ sample }) => {
               </div>
             )}
 
+            {/* Technician and ETA */}
+            {(details.technician || details.estimatedCompletion) && (
+              <div className="mt-4 grid sm:grid-cols-2 gap-4">
+                {details.technician && (
+                  <div className="p-3 rounded-lg bg-secondary-50">
+                    <div className="text-sm text-secondary-500 mb-1">Technicien</div>
+                    <div className="text-sm text-secondary-700">{details.technician}</div>
+                  </div>
+                )}
+                {details.estimatedCompletion && (
+                  <div className="p-3 rounded-lg bg-secondary-50">
+                    <div className="text-sm text-secondary-500 mb-1">ETA</div>
+                    <div className="text-sm text-secondary-700">{details.estimatedCompletion}</div>
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* QR Traceability */}
-            {details.qrCode && (
+            {details.status === 'Reported' && details.qrCode && (
               <div className="mt-6 grid sm:grid-cols-[auto_1fr] gap-4 items-center">
                 <Image
                   src={details.qrCode}

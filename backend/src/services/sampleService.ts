@@ -235,12 +235,14 @@ export class SampleService {
         throw new AppError('Access denied', 403);
       }
 
-      // Attach QR code (best-effort)
-      try {
-        const qr = await this.generateSampleQRCode(sample.sampleCode);
-        (sample as any).qrCode = qr;
-      } catch (e: any) {
-        logger.warn('Failed to generate QR code for sample', { error: e?.message || e });
+      // Attach QR code only if report exists or status is REPORTED
+      if ((sample as any).report || sample.status === 'REPORTED') {
+        try {
+          const qr = await this.generateSampleQRCode(sample.sampleCode);
+          (sample as any).qrCode = qr;
+        } catch (e: any) {
+          logger.warn('Failed to generate QR code for sample', { error: e?.message || e });
+        }
       }
 
       return sample as any;
@@ -279,10 +281,13 @@ export class SampleService {
           report: null,
         };
 
-        try {
-          demoSample.qrCode = await this.generateSampleQRCode(sampleCode);
-        } catch (e2: any) {
-          logger.warn('Failed to generate demo QR code for sample', { error: e2?.message || e2 });
+        // In demo, do NOT generate QR unless reported
+        if (demoSample.status === 'REPORTED') {
+          try {
+            (demoSample as any).qrCode = await this.generateSampleQRCode(sampleCode);
+          } catch (e2: any) {
+            logger.warn('Failed to generate demo QR code for sample', { error: e2?.message || e2 });
+          }
         }
 
         logger.warn('DEMO SAMPLE BY CODE FALLBACK USED (no DB). Returning synthetic sample.', {

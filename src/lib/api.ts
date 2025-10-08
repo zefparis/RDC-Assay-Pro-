@@ -13,18 +13,18 @@ const getAuthToken = (): string | null => {
 // API request helper
 const apiRequest = async (endpoint: string, options: RequestInit = {}): Promise<any> => {
   const token = getAuthToken();
-  
+
   const config: RequestInit = {
+    ...options,
     headers: {
       'Content-Type': 'application/json',
-      ...(token && { Authorization: `Bearer ${token}` }),
-      ...options.headers,
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(options.headers || {}),
     },
-    ...options,
   };
 
   const response = await fetch(`${BASE_URL}${endpoint}`, config);
-  
+
   if (!response.ok) {
     const error = await response.json().catch(() => ({ message: 'Network error' }));
     throw new Error(error.message || `HTTP ${response.status}`);
@@ -37,10 +37,10 @@ const apiRequest = async (endpoint: string, options: RequestInit = {}): Promise<
 const mapStatus = (backendStatus: string): SampleStatus => {
   const statusMap: Record<string, SampleStatus> = {
     'RECEIVED': 'Received',
-    'PREP': 'Prep',
-    'ANALYZING': 'Analyzing',
+    'ANALYZING': 'In Analysis',
     'QA_QC': 'QA/QC',
     'REPORTED': 'Reported',
+    'DELIVERED': 'Delivered',
   };
   return statusMap[backendStatus] || 'Received'; // Default fallback
 };
@@ -49,10 +49,10 @@ const mapStatus = (backendStatus: string): SampleStatus => {
 const mapStatusToBackend = (frontendStatus: string): string => {
   const statusMap: Record<string, string> = {
     'Received': 'RECEIVED',
-    'Prep': 'PREP',
-    'Analyzing': 'ANALYZING',
+    'In Analysis': 'ANALYZING',
     'QA/QC': 'QA_QC',
     'Reported': 'REPORTED',
+    'Delivered': 'DELIVERED',
   };
   return statusMap[frontendStatus] || frontendStatus;
 };
@@ -354,5 +354,129 @@ export const api = {
   async getProfile(): Promise<any> {
     const response = await apiRequest('/auth/profile');
     return response.data.user;
+  },
+
+  // Admin helpers (Option B: server-side validation via Next API routes)
+  async adminLogin(password: string): Promise<{ expiresIn: number }> {
+    const res = await fetch('/api/auth/boss', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ password }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || `HTTP ${res.status}`);
+    }
+    const data = await res.json();
+    return { expiresIn: data.expiresIn };
+  },
+
+  async adminListSamples(params: { page?: number; limit?: number; search?: string } = {}): Promise<PaginatedResponse<Sample>> {
+    const query = new URLSearchParams({
+      page: String(params.page || 1),
+      limit: String(params.limit || 20),
+      ...(params.search ? { search: params.search } : {}),
+    });
+    const res = await fetch(`/api/admin/samples?${query.toString()}`, {
+      credentials: 'include',
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || `HTTP ${res.status}`);
+    }
+    const response = await res.json();
+    return {
+      data: response.data.map((sample: any) => ({
+        id: sample.sampleCode,
+        mineral: mapMineral(sample.mineral),
+        site: sample.site,
+        status: mapStatus(sample.status),
+        grade: sample.grade,
+        unit: mapUnit(sample.unit),
+        updatedAt: sample.updatedAt?.split('T')[0] || sample.receivedAt?.split('T')[0],
+        createdAt: sample.receivedAt?.split('T')[0],
+        mass: sample.mass,
+        notes: sample.notes,
+        qrCode: sample.qrCode,
+        reportUrl: sample.report?.reportCode ? `${BASE_URL}/reports/${sample.report.reportCode}.pdf` : undefined,
+      })),
+      total: response.pagination.total,
+      page: response.pagination.page,
+      limit: response.pagination.limit,
+      totalPages: response.pagination.totalPages,
+    };
+  },
+
+  async adminUpdateSampleStatus(code: string, nextStatus: SampleStatus, notes?: string): Promise<Sample> {
+    const res = await fetch(`/api/admin/samples/${encodeURIComponent(code)}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ status: mapStatusToBackend(nextStatus), notes }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || `HTTP ${res.status}`);
+    }
+    const response = await res.json();
+    const sample = response.data.sample;
+    return {
+      id: sample.sampleCode,
+      mineral: mapMineral(sample.mineral),
+      site: sample.site,
+      status: mapStatus(sample.status),
+      grade: sample.grade,
+      unit: mapUnit(sample.unit),
+      updatedAt: sample.updatedAt?.split('T')[0] || sample.receivedAt?.split('T')[0],
+      createdAt: sample.receivedAt?.split('T')[0],
+      mass: sample.mass,
+      notes: sample.notes,
+      qrCode: sample.qrCode,
+      reportUrl: sample.report?.reportCode ? `${BASE_URL}/reports/${sample.report.reportCode}.pdf` : undefined,
+    };
+  },
+
+  async adminUploadReport(code: string, file: File, payload: { grade?: number; unit?: Unit } = {}): Promise<Sample> {
+    const form = new FormData();
+    form.append('file', file);
+    if (payload.grade != null) form.append('grade', String(payload.grade));
+    if (payload.unit) form.append('unit', mapUnitToBackend(payload.unit));
+    const res = await fetch(`/api/admin/samples/${encodeURIComponent(code)}/report`, {
+      method: 'POST',
+      credentials: 'include',
+      body: form,
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || `HTTP ${res.status}`);
+    }
+    const data = await res.json();
+    const sample = data.data.sample || data.data;
+    return {
+      id: sample.sampleCode,
+      mineral: mapMineral(sample.mineral),
+      site: sample.site,
+      status: mapStatus(sample.status),
+      grade: sample.grade,
+      unit: mapUnit(sample.unit),
+      updatedAt: sample.updatedAt?.split('T')[0] || sample.receivedAt?.split('T')[0],
+      createdAt: sample.receivedAt?.split('T')[0],
+      mass: sample.mass,
+      notes: sample.notes,
+      qrCode: sample.qrCode,
+      reportUrl: sample.report?.reportCode ? `${BASE_URL}/reports/${sample.report.reportCode}.pdf` : undefined,
+    };
+  },
+
+  async adminDeleteSample(code: string): Promise<void> {
+    const res = await fetch(`/api/admin/samples/${encodeURIComponent(code)}`, {
+      method: 'DELETE',
+      credentials: 'include',
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || `HTTP ${res.status}`);
+    }
   },
 };

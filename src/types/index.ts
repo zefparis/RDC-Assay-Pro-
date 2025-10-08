@@ -1,4 +1,4 @@
-export type SampleStatus = 'Received' | 'Prep' | 'Analyzing' | 'QA/QC' | 'Reported';
+export type SampleStatus = 'Received' | 'In Analysis' | 'QA/QC' | 'Reported' | 'Delivered';
 
 export type MineralType = 'Cu' | 'Co' | 'Li' | 'Au' | 'Sn' | 'Ta' | 'W' | 'Zn' | 'Pb' | 'Ni';
 
@@ -18,6 +18,9 @@ export interface Sample {
   clientId?: string;
   timeline?: TimelineEvent[];
   qrCode?: string;
+  reportUrl?: string;
+  technician?: string;
+  estimatedCompletion?: string;
 }
 
 export interface TimelineEvent {
