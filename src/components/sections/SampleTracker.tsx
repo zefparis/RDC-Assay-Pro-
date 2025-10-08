@@ -17,21 +17,33 @@ const SampleTracker: React.FC = () => {
   const [error, setError] = useState('');
 
   const searchSamples = useCallback(async () => {
+    // Ne pas faire de recherche si pas de query
+    if (!query.trim()) {
+      setSamples([]);
+      return;
+    }
+
     try {
       setError('');
       setLoading(true);
       const response = await api.searchSamples(query);
       setSamples(response.data);
-    } catch (err) {
-      setError(t.common.error);
+    } catch (err: any) {
+      if (err.message?.includes('Access token required') || err.message?.includes('401')) {
+        setError('Veuillez vous connecter pour rechercher des échantillons');
+      } else {
+        setError(t.common.error);
+      }
+      setSamples([]);
     } finally {
       setLoading(false);
     }
   }, [query, t.common.error]);
 
-  useEffect(() => {
-    searchSamples();
-  }, [searchSamples]);
+  // Supprimer le useEffect automatique
+  // useEffect(() => {
+  //   searchSamples();
+  // }, [searchSamples]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();

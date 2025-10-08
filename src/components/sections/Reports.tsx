@@ -26,17 +26,22 @@ const Reports: React.FC = () => {
     );
   }, [reports, filterQuery]);
 
-  useEffect(() => {
-    loadReports();
-  }, []);
+  // Supprimer le chargement automatique
+  // useEffect(() => {
+  //   loadReports();
+  // }, []);
 
   const loadReports = async () => {
     setLoading(true);
     try {
       const response = await api.getReports();
       setReports(response.data);
-    } catch (err) {
-      console.error('Failed to load reports:', err);
+    } catch (err: any) {
+      if (err.message?.includes('Access token required') || err.message?.includes('401')) {
+        console.log('User not authenticated - reports not loaded');
+      } else {
+        console.error('Failed to load reports:', err);
+      }
     } finally {
       setLoading(false);
     }
@@ -86,8 +91,9 @@ const Reports: React.FC = () => {
                   size="sm"
                   onClick={loadReports}
                   loading={loading}
+                  icon={<FileText className="w-4 h-4" />}
                 >
-                  Refresh
+                  Charger
                 </Button>
               </div>
             </div>
