@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShieldCheck, LogOut, Search, Edit3, Upload, Trash2 } from 'lucide-react';
+import { Search, Edit3, Upload, Trash2 } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 
 import Card from '@/components/ui/Card';
@@ -27,13 +27,6 @@ function statusVariant(s: SampleStatus): React.ComponentProps<typeof Badge>["var
 
 export default function BossAdminPage() {
   const { t, locale } = useTranslation();
-
-  // Gate state
-  const [checking, setChecking] = useState(true);
-  const [authed, setAuthed] = useState(false);
-  const [loginLoading, setLoginLoading] = useState(false);
-  const [password, setPassword] = useState('');
-  const [loginError, setLoginError] = useState('');
 
   // Table state
   const [items, setItems] = useState<Sample[]>([]);
@@ -68,71 +61,11 @@ export default function BossAdminPage() {
     { value: 'oz/t', label: 'oz/t' },
   ];
 
-  // Check session by attempting a small fetch
+  // Load data on mount
   useEffect(() => {
-    const check = async () => {
-      setChecking(true);
-      try {
-        await api.adminListSamples({ page: 1, limit: 1 });
-        setAuthed(true);
-      } catch {
-        setAuthed(false);
-      } finally {
-        setChecking(false);
-      }
-    };
-    check();
+    void loadData(1, '');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  // Auto-refresh token while authed
-  useEffect(() => {
-    if (!authed) return;
-    let stopped = false;
-    const REFRESH_MS = 20 * 60 * 1000; // 20 minutes, less than 30m TTL
-
-    const doRefresh = async () => {
-      if (stopped) return;
-      try {
-        await api.adminRefresh();
-      } catch (e: any) {
-        // On 401 or failure, force logout state
-        setAuthed(false);
-      }
-    };
-
-    const id = setInterval(doRefresh, REFRESH_MS);
-
-    const vis = () => {
-      if (document.visibilityState === 'visible') {
-        void doRefresh();
-      }
-    };
-    document.addEventListener('visibilitychange', vis);
-
-    return () => {
-      stopped = true;
-      clearInterval(id);
-      document.removeEventListener('visibilitychange', vis);
-    };
-  }, [authed]);
-
-  const doLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoginError('');
-    setLoginLoading(true);
-    try {
-      await api.adminLogin(password);
-      setAuthed(true);
-      toast.success(locale === 'fr' ? 'Connecté' : 'Logged in');
-      // Load data right away
-      void loadData(1, searchTerm);
-    } catch (err: any) {
-      setAuthed(false);
-      setLoginError(err?.message || 'Login failed');
-    } finally {
-      setLoginLoading(false);
-    }
-  };
 
   const loadData = async (newPage = page, search = searchTerm) => {
     setLoading(true);
@@ -142,11 +75,7 @@ export default function BossAdminPage() {
       setPage(resp.page);
       setTotalPages(resp.totalPages);
     } catch (err: any) {
-      if (String(err?.message || '').includes('401')) {
-        setAuthed(false);
-      } else {
-        toast.error(err.message || (locale === 'fr' ? 'Erreur de chargement' : 'Load error'));
-      }
+      toast.error(err.message || (locale === 'fr' ? 'Erreur de chargement' : 'Load error'));
     } finally {
       setLoading(false);
     }
@@ -200,41 +129,12 @@ export default function BossAdminPage() {
     }
   };
 
-  const logout = async () => {
-    try {
-      await fetch('/api/auth/boss-logout', { method: 'POST', credentials: 'include' });
-    } catch {}
-    setAuthed(false);
-  };
-
   return (
     <section className="py-10 sm:py-16 bg-secondary-50 min-h-[80vh]">
       <Toaster />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
-          {!authed ? (
-            <Card padding="lg" className="max-w-md mx-auto shadow-strong">
-              <div className="flex items-center gap-3 mb-6">
-                <ShieldCheck className="w-6 h-6 text-primary-600" />
-                <div>
-                  <h1 className="text-2xl font-bold">{t.bossadmin?.loginTitle || 'Laboratory access'}</h1>
-                  <p className="text-secondary-600 text-sm">{checking ? (locale === 'fr' ? 'Vérification…' : 'Checking…') : (locale === 'fr' ? 'Entrez votre mot de passe' : 'Enter your password')}</p>
-                </div>
-              </div>
-              <form onSubmit={doLogin} className="space-y-4">
-                <Input
-                  type="password"
-                  placeholder={t.bossadmin?.passwordPlaceholder || 'Administrator password'}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-                {loginError && (
-                  <div className="p-3 rounded-lg bg-danger-50 border border-danger-200 text-danger-700 text-sm">{loginError}</div>
-                )}
-                <Button type="submit" loading={loginLoading} className="w-full">{t.bossadmin?.login || 'Login'}</Button>
-              </form>
-            </Card>
-          ) : (
+          {
             <div className="space-y-6">
               {/* Header */}
               <div className="flex items-center justify-between">
@@ -242,9 +142,6 @@ export default function BossAdminPage() {
                   <h1 className="text-2xl font-bold">{t.bossadmin?.title || 'Admin Panel'}</h1>
                   <p className="text-secondary-600 text-sm">{t.bossadmin?.sidebar.samples || 'Samples'}</p>
                 </div>
-                <Button variant="ghost" icon={<LogOut className="w-4 h-4" />} onClick={logout}>
-                  {t.bossadmin?.logout || 'Logout'}
-                </Button>
               </div>
 
               <Card padding="lg" className="shadow-strong">
@@ -372,7 +269,7 @@ export default function BossAdminPage() {
                 )}
               </AnimatePresence>
             </div>
-          )}
+          }
         </motion.div>
       </div>
     </section>

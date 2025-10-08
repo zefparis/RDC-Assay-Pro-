@@ -49,7 +49,6 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
 
     try {
       const response = await api.login(data.email, data.password);
-      console.log('Login successful:', response);
       
       // Use auth hook to manage state
       login(response.token, response.user);
