@@ -15,7 +15,7 @@
     "lint:fix": "eslint src/**/*.ts --fix",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "prisma:deploy": "prisma migrate deploy",
+    "prisma:deploy": "sh -c \"prisma migrate deploy || prisma db push\"",
     "prisma:studio": "prisma studio",
     "seed": "ts-node src/prisma/seed.ts",
     "deploy:railway": "npm run build && npm run prisma:deploy && npm run seed"

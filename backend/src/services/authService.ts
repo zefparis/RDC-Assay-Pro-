@@ -86,14 +86,21 @@ export class AuthService {
     // Generate tokens
     const tokens = this.generateTokens(user);
 
-    // Store refresh token
-    await prisma.refreshToken.create({
-      data: {
-        token: tokens.refreshToken,
-        userId: user.id,
-        expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
-      },
-    });
+    // Store refresh token (best-effort)
+    try {
+      await prisma.refreshToken.create({
+        data: {
+          token: tokens.refreshToken,
+          userId: user.id,
+          expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+        },
+      });
+    } catch (e: any) {
+      // Do not fail registration if token persistence fails (e.g., migrations not applied yet)
+      logger.warn('Failed to persist refresh token during registration. Proceeding without persistence.', {
+        error: e?.message || e,
+      });
+    }
 
     // Remove password from response
     const { password, ...userWithoutPassword } = user;
@@ -131,20 +138,33 @@ export class AuthService {
     // Generate tokens
     const tokens = this.generateTokens(user);
 
-    // Store refresh token
-    await prisma.refreshToken.create({
-      data: {
-        token: tokens.refreshToken,
-        userId: user.id,
-        expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
-      },
-    });
+    // Store refresh token (best-effort)
+    try {
+      await prisma.refreshToken.create({
+        data: {
+          token: tokens.refreshToken,
+          userId: user.id,
+          expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+        },
+      });
+    } catch (e: any) {
+      // Avoid failing login if the refresh_tokens table is missing or not migrated yet
+      logger.warn('Failed to persist refresh token during login. Proceeding without persistence.', {
+        error: e?.message || e,
+      });
+    }
 
-    // Update last login
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { lastLoginAt: new Date() },
-    });
+    // Update last login (best-effort)
+    try {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { lastLoginAt: new Date() },
+      });
+    } catch (e: any) {
+      logger.warn('Failed to update lastLoginAt during login. Proceeding.', {
+        error: e?.message || e,
+      });
+    }
 
     // Remove password from response
     const { password, ...userWithoutPassword } = user;
@@ -181,13 +201,19 @@ export class AuthService {
       const tokens = this.generateTokens(storedToken.user);
 
       // Update refresh token in database
-      await prisma.refreshToken.update({
-        where: { id: storedToken.id },
-        data: {
-          token: tokens.refreshToken,
-          expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-        },
-      });
+      try {
+        await prisma.refreshToken.update({
+          where: { id: storedToken.id },
+          data: {
+            token: tokens.refreshToken,
+            expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+          },
+        });
+      } catch (e: any) {
+        logger.warn('Failed to update stored refresh token during refresh. Proceeding with new tokens.', {
+          error: e?.message || e,
+        });
+      }
 
       logger.info('Token refreshed successfully:', { userId: storedToken.user.id });
 

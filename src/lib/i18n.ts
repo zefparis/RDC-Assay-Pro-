@@ -180,7 +180,7 @@ export const translations: Record<Locale, Translations> = {
     },
     submission: {
       title: 'Soumettre un échantillon',
-      subtitle: 'Formulaire rapide. Le backend peut être branché plus tard.',
+      subtitle: 'Formulaire connecté à l’API. Authentification requise.',
       mineralType: 'Type de minerai',
       unit: 'Unité',
       miningSite: 'Site minier',
@@ -290,7 +290,7 @@ export const translations: Record<Locale, Translations> = {
     },
     submission: {
       title: 'Submit a sample',
-      subtitle: 'Quick form. Backend can be connected later.',
+      subtitle: 'Form connected to API. Authentication required.',
       mineralType: 'Mineral type',
       unit: 'Unit',
       miningSite: 'Mining site',
