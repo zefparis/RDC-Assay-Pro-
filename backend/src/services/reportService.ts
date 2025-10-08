@@ -1,5 +1,6 @@
 import { Report, Unit, MineralType, Prisma } from '@prisma/client';
 import { prisma } from '@/config/database';
+import { config } from '@/config/environment';
 import { AppError, CreateReportRequest, ReportSearchQuery, PaginatedResponse } from '@/types';
 import { logger } from '@/utils/logger';
 import crypto from 'crypto';
@@ -314,55 +315,77 @@ export class ReportService {
       if (dateTo) where.issuedAt.lte = new Date(dateTo);
     }
 
-    // Get total count
-    const total = await prisma.report.count({ where });
+    try {
+      // Get total count
+      const total = await prisma.report.count({ where });
 
-    // Get paginated results
-    const reports = await prisma.report.findMany({
-      where,
-      include: {
-        sample: {
-          include: {
-            client: {
-              select: {
-                id: true,
-                name: true,
-                email: true,
-                company: true,
+      // Get paginated results
+      const reports = await prisma.report.findMany({
+        where,
+        include: {
+          sample: {
+            include: {
+              client: {
+                select: {
+                  id: true,
+                  name: true,
+                  email: true,
+                  company: true,
+                },
               },
             },
           },
-        },
-        issuedByUser: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            role: true,
+          issuedByUser: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              role: true,
+            },
           },
         },
-      },
-      orderBy: {
-        [sortBy]: sortOrder,
-      },
-      skip: (page - 1) * limit,
-      take: limit,
-    });
+        orderBy: {
+          [sortBy]: sortOrder,
+        },
+        skip: (page - 1) * limit,
+        take: limit,
+      });
 
-    const totalPages = Math.ceil(total / limit);
+      const totalPages = Math.ceil(total / limit);
 
-    return {
-      success: true,
-      data: reports,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages,
-        hasNext: page < totalPages,
-        hasPrev: page > 1,
-      },
-    };
+      return {
+        success: true,
+        data: reports,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages,
+          hasNext: page < totalPages,
+          hasPrev: page > 1,
+        },
+      };
+    } catch (e: any) {
+      // Demo fallback: return empty list when DB is not ready
+      if (config.features?.demoLoginEnabled) {
+        logger.warn('DEMO REPORTS FALLBACK USED (no DB). Returning empty result set.', {
+          error: e?.message || e,
+        });
+        return {
+          success: true,
+          data: [],
+          pagination: {
+            page,
+            limit,
+            total: 0,
+            totalPages: 0,
+            hasNext: false,
+            hasPrev: false,
+          },
+        };
+      }
+      throw e;
+    }
   }
 
   // Verify report authenticity
