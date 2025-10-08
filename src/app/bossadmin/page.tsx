@@ -84,6 +84,38 @@ export default function BossAdminPage() {
     check();
   }, []);
 
+  // Auto-refresh token while authed
+  useEffect(() => {
+    if (!authed) return;
+    let stopped = false;
+    const REFRESH_MS = 20 * 60 * 1000; // 20 minutes, less than 30m TTL
+
+    const doRefresh = async () => {
+      if (stopped) return;
+      try {
+        await api.adminRefresh();
+      } catch (e: any) {
+        // On 401 or failure, force logout state
+        setAuthed(false);
+      }
+    };
+
+    const id = setInterval(doRefresh, REFRESH_MS);
+
+    const vis = () => {
+      if (document.visibilityState === 'visible') {
+        void doRefresh();
+      }
+    };
+    document.addEventListener('visibilitychange', vis);
+
+    return () => {
+      stopped = true;
+      clearInterval(id);
+      document.removeEventListener('visibilitychange', vis);
+    };
+  }, [authed]);
+
   const doLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoginError('');

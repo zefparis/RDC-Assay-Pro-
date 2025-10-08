@@ -43,14 +43,8 @@ export const SAMPLE_STATUSES: Record<SampleStatus, {
     bgColor: 'bg-secondary-100',
     description: 'Sample has been received and logged',
   },
-  'Prep': {
-    label: 'Preparation',
-    color: 'text-warning-700',
-    bgColor: 'bg-warning-100',
-    description: 'Sample is being prepared for analysis',
-  },
-  'Analyzing': {
-    label: 'Analyzing',
+  'In Analysis': {
+    label: 'In Analysis',
     color: 'text-primary-700',
     bgColor: 'bg-primary-100',
     description: 'Sample is currently being analyzed',
@@ -66,6 +60,12 @@ export const SAMPLE_STATUSES: Record<SampleStatus, {
     color: 'text-success-700',
     bgColor: 'bg-success-100',
     description: 'Analysis complete, report generated',
+  },
+  'Delivered': {
+    label: 'Delivered',
+    color: 'text-secondary-800',
+    bgColor: 'bg-secondary-200',
+    description: 'Final report delivered to the client',
   },
 };
 

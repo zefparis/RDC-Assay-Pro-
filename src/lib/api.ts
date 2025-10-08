@@ -372,6 +372,19 @@ export const api = {
     return { expiresIn: data.expiresIn };
   },
 
+  async adminRefresh(): Promise<{ expiresIn: number }> {
+    const res = await fetch('/api/auth/boss-refresh', {
+      method: 'POST',
+      credentials: 'include',
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || `HTTP ${res.status}`);
+    }
+    const data = await res.json();
+    return { expiresIn: data.expiresIn };
+  },
+
   async adminListSamples(params: { page?: number; limit?: number; search?: string } = {}): Promise<PaginatedResponse<Sample>> {
     const query = new URLSearchParams({
       page: String(params.page || 1),
