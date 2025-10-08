@@ -17,7 +17,7 @@ const Hero: React.FC = () => {
   ];
 
   return (
-    <section className="relative py-20 overflow-hidden">
+    <section className="relative py-24 lg:py-28 overflow-hidden min-h-[800px]">
       {/* Background image + overlay */}
       <div className="absolute inset-0">
         <Image
@@ -26,9 +26,10 @@ const Hero: React.FC = () => {
           fill
           priority
           sizes="100vw"
-          className="object-cover object-center"
+          className="object-cover object-center scale-110 filter saturate-175 contrast-125 brightness-115"
+          style={{ objectPosition: 'center 65%' }}
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-white/85 via-white/80 to-secondary-50/80" />
+        {/* No global overlay to keep the image fully visible */}
       </div>
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -38,12 +39,12 @@ const Hero: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="space-y-6"
+              className="space-y-6 bg-transparent backdrop-blur-0 p-6 max-w-2xl"
             >
-              <h1 className="text-4xl lg:text-6xl font-bold text-secondary-900 leading-tight">
+              <h1 className="text-4xl lg:text-6xl font-bold text-secondary-900 leading-tight drop-shadow-lg">
                 {t.hero.title}
               </h1>
-              <p className="text-xl text-secondary-600 leading-relaxed">
+              <p className="text-xl text-secondary-800 leading-relaxed drop-shadow-lg">
                 {t.hero.subtitle}
               </p>
             </motion.div>
@@ -88,7 +89,7 @@ const Hero: React.FC = () => {
             transition={{ duration: 0.6, delay: 0.3 }}
             className="relative"
           >
-            <Card className="p-6 shadow-strong">
+            <Card className="p-6 shadow-strong bg-white/70 backdrop-blur-sm">
               <div className="flex items-center gap-3 mb-6">
                 <FlaskConical className="w-6 h-6 text-primary-600" />
                 <div>
@@ -109,7 +110,7 @@ const Hero: React.FC = () => {
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.4, delay: 0.5 + index * 0.1 }}
                   >
-                    <Card padding="sm" className="text-center">
+                    <Card padding="sm" className="text-center bg-white/80">
                       <stat.icon className={`w-6 h-6 mx-auto mb-2 ${stat.color}`} />
                       <div className="text-2xl font-bold text-secondary-900 mb-1">
                         {stat.value}
