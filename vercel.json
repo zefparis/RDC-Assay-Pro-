@@ -1,0 +1,16 @@
+{
+  "framework": "nextjs",
+  "buildCommand": "npm run build",
+  "outputDirectory": ".next",
+  "installCommand": "npm install",
+  "env": {
+    "NEXT_PUBLIC_API_URL": "https://rdc-assay-pro-production.up.railway.app/api/v1",
+    "NODE_ENV": "production"
+  },
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://rdc-assay-pro-production.up.railway.app/api/:path*"
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+# Exclude backend from Vercel deployment
+backend/
+backend/**/*
+
+# Exclude other unnecessary files
+*.md
+.git/
+.vscode/
+node_modules/
+.env.local
+.env.development
+test-build.js
+
+# Keep only frontend files
+!src/
+!public/
+!package.json
+!package-lock.json
+!next.config.js
+!tailwind.config.js
+!postcss.config.js
+!tsconfig.json
+!.env.production
+!vercel.json
+!netlify.toml
