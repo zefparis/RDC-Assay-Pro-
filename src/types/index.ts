@@ -1,4 +1,14 @@
-export type SampleStatus = 'Received' | 'In Analysis' | 'QA/QC' | 'Reported' | 'Delivered';
+export type SampleStatus =
+  | 'Booked'
+  | 'Pickup Assigned'
+  | 'Picked Up'
+  | 'In Transit'
+  | 'At Lab Reception'
+  | 'Received'
+  | 'In Analysis'
+  | 'QA/QC'
+  | 'Reported'
+  | 'Delivered';
 
 export type MineralType = 'Cu' | 'Co' | 'Li' | 'Au' | 'Sn' | 'Ta' | 'W' | 'Zn' | 'Pb' | 'Ni';
 

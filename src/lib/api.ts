@@ -36,6 +36,11 @@ const apiRequest = async (endpoint: string, options: RequestInit = {}): Promise<
 // Map backend status to frontend status
 const mapStatus = (backendStatus: string): SampleStatus => {
   const statusMap: Record<string, SampleStatus> = {
+    'BOOKED': 'Booked',
+    'PICKUP_ASSIGNED': 'Pickup Assigned',
+    'PICKED_UP': 'Picked Up',
+    'IN_TRANSIT': 'In Transit',
+    'AT_LAB_RECEPTION': 'At Lab Reception',
     'RECEIVED': 'Received',
     'ANALYZING': 'In Analysis',
     'QA_QC': 'QA/QC',
@@ -48,6 +53,11 @@ const mapStatus = (backendStatus: string): SampleStatus => {
 // Map frontend status to backend status
 const mapStatusToBackend = (frontendStatus: string): string => {
   const statusMap: Record<string, string> = {
+    'Booked': 'BOOKED',
+    'Pickup Assigned': 'PICKUP_ASSIGNED',
+    'Picked Up': 'PICKED_UP',
+    'In Transit': 'IN_TRANSIT',
+    'At Lab Reception': 'AT_LAB_RECEPTION',
     'Received': 'RECEIVED',
     'In Analysis': 'ANALYZING',
     'QA/QC': 'QA_QC',

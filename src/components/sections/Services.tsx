@@ -1,11 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Search, FlaskConical, ShieldCheck, Truck, Microscope, FileCheck, QrCode } from 'lucide-react';
+import { Search, FlaskConical, ShieldCheck, Truck, Microscope, FileCheck, QrCode, Clipboard, Share2, Printer } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import Card from '@/components/ui/Card';
+import Input from '@/components/ui/Input';
+import Button from '@/components/ui/Button';
+import { formatShortCodeDisplay } from '@/lib/code';
 
 const Services: React.FC = () => {
   const { t } = useTranslation();
+  const [site, setSite] = useState('Kolwezi');
+  const [contact, setContact] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [result, setResult] = useState<{ fullCode: string; shortCode: string; checkDigit: number } | null>(null);
 
   const services = [
     {
@@ -93,6 +101,134 @@ const Services: React.FC = () => {
             </motion.div>
           ))}
         </div>
+
+        {/* Pre-registration block */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="mb-16"
+        >
+          <Card padding="lg" className="shadow-strong">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h3 className="text-xl font-semibold text-secondary-900">
+                  {t.services?.preregister?.title || 'Pré‑enregistrer un échantillon'}
+                </h3>
+                <p className="text-secondary-600">
+                  {t.services?.preregister?.description || 'Obtenez un code de suivi avant ramassage.'}
+                </p>
+              </div>
+            </div>
+
+            <div className="grid sm:grid-cols-3 gap-4 mb-4">
+              <Input
+                label={t.services?.preregister?.site || 'Site'}
+                placeholder="Kolwezi, Likasi..."
+                value={site}
+                onChange={(e) => setSite(e.target.value)}
+              />
+              <Input
+                label={t.services?.preregister?.contact || 'Contact'}
+                placeholder="email@domaine.com / +243..."
+                value={contact}
+                onChange={(e) => setContact(e.target.value)}
+              />
+            </div>
+
+            {error && (
+              <div className="mb-4 p-3 rounded-lg bg-danger-50 border border-danger-200 text-danger-700 text-sm">{error}</div>
+            )}
+
+            <div className="flex items-center gap-3">
+              <Button
+                onClick={async () => {
+                  try {
+                    setError('');
+                    setLoading(true);
+                    const res = await fetch('/api/samples/preregister', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ site, contact }),
+                    });
+                    if (!res.ok) {
+                      const e = await res.json().catch(() => ({}));
+                      throw new Error(e.error || `HTTP ${res.status}`);
+                    }
+                    const data = await res.json();
+                    setResult(data.data);
+                  } catch (e: any) {
+                    setError(t.services?.preregister?.error || 'Échec du pré‑enregistrement');
+                  } finally {
+                    setLoading(false);
+                  }
+                }}
+                loading={loading}
+              >
+                {t.services?.preregister?.create || 'Créer le code'}
+              </Button>
+            </div>
+
+            {result && (
+              <div className="mt-6 p-4 rounded-xl bg-secondary-50 border border-secondary-200">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div className="space-y-1">
+                    <div className="text-sm text-secondary-500">
+                      {t.services?.preregister?.codeIssued || 'Code émis'}
+                    </div>
+                    <div className="text-xl font-mono font-bold text-secondary-900">
+                      {formatShortCodeDisplay(result.shortCode)}
+                    </div>
+                    <div className="text-sm text-secondary-600">
+                      <span className="font-medium">{t.services?.preregister?.fullCode || 'Code complet'}:</span> {result.fullCode}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      icon={<Clipboard className="w-4 h-4" />}
+                      onClick={() => navigator.clipboard.writeText(formatShortCodeDisplay(result.shortCode))}
+                    >
+                      {t.services?.preregister?.copy || 'Copier'}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      icon={<Share2 className="w-4 h-4" />}
+                      onClick={() => {
+                        const text = `${t.services?.preregister?.codeIssued || 'Code émis'}: ${formatShortCodeDisplay(result.shortCode)}`;
+                        const url = typeof window !== 'undefined' ? window.location.origin + '/#tracking' : '';
+                        if (navigator.share) {
+                          navigator.share({ title: 'Sample tracking', text, url }).catch(() => {});
+                        } else {
+                          navigator.clipboard.writeText(`${text} ${url}`);
+                        }
+                      }}
+                    >
+                      {t.services?.preregister?.share || 'Partager'}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      icon={<Printer className="w-4 h-4" />}
+                      onClick={() => {
+                        const printable = window.open('', 'print');
+                        if (!printable) return;
+                        const code = formatShortCodeDisplay(result.shortCode);
+                        printable.document.write(`<!doctype html><html><head><meta charset='utf-8'><title>Label</title><style>body{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;padding:24px} .label{border:1px solid #ddd;border-radius:12px;padding:16px;width:320px} .big{font-size:28px;font-weight:800} .small{color:#555;font-size:12px}</style></head><body><div class='label'><div class='big'>${code}</div><div class='small'>${result.fullCode}</div><div class='small'>${site}</div></div><script>window.onload=()=>{window.print();setTimeout(()=>window.close(),300)}</script></body></html>`);
+                        printable.document.close();
+                      }}
+                    >
+                      {t.services?.preregister?.print || 'Imprimer étiquette'}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </Card>
+        </motion.div>
 
         {/* Additional Features */}
         <motion.div

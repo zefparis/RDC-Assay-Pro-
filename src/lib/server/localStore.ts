@@ -1,0 +1,135 @@
+import { onlyDigits, computeLuhnDigit } from '@/lib/code';
+
+export type LocalStatus =
+  | 'Booked'
+  | 'Pickup Assigned'
+  | 'Picked Up'
+  | 'In Transit'
+  | 'At Lab Reception'
+  | 'Received'
+  | 'In Analysis'
+  | 'QA/QC'
+  | 'Reported'
+  | 'Delivered';
+
+export interface LocalTimelineEvent {
+  type: LocalStatus;
+  at: string; // ISO string
+  by?: string;
+  location?: { lat: number; lng: number };
+  notes?: string;
+}
+
+export interface LocalSample {
+  id: string; // shortCode (7 digits) used as primary key in this store
+  fullCode: string; // RC-YYMM-######
+  shortCode: string; // 7 digits
+  checkDigit: number;
+  site: string;
+  mineral?: string;
+  unit?: string;
+  mass?: number;
+  notes?: string;
+  status: LocalStatus;
+  updatedAt: string;
+  createdAt: string;
+  timeline: LocalTimelineEvent[];
+  reportUrl?: string;
+  technician?: string;
+  estimatedCompletion?: string;
+}
+
+// In-memory store (non-persistent). For production, replace by a DB.
+const STORE: { samples: Map<string, LocalSample> } = {
+  samples: new Map(),
+};
+
+function nowISO(): string {
+  return new Date().toISOString();
+}
+
+export function createPreRegisteredSample(input: { site: string; contact?: string }): LocalSample {
+  const now = new Date();
+  const yy = String(now.getUTCFullYear()).slice(-2);
+  const mm = String(now.getUTCMonth() + 1).padStart(2, '0');
+  // Sequential placeholder: use timestamp tail to avoid collision in-memory
+  const tail = String(now.getTime()).slice(-3); // last 3 digits
+  const extra = Math.floor(Math.random() * 10);
+  const shortDigits = `${yy}${mm}${tail}`.slice(0, 6) + String(extra); // 7 digits
+  const checkDigit = computeLuhnDigit(shortDigits);
+  const seq = `${yy}${mm}${tail}${String(extra)}`.slice(-6);
+  const fullCode = `RC-${yy}${mm}-${seq}`;
+
+  const sample: LocalSample = {
+    id: shortDigits,
+    fullCode,
+    shortCode: shortDigits,
+    checkDigit,
+    site: input.site || 'Kolwezi',
+    status: 'Booked',
+    createdAt: nowISO(),
+    updatedAt: nowISO(),
+    timeline: [
+      { type: 'Booked', at: nowISO(), notes: input.contact ? `Contact: ${input.contact}` : undefined },
+    ],
+  };
+  STORE.samples.set(sample.id, sample);
+  return sample;
+}
+
+export function findByCode(codeOrShort: string): LocalSample | undefined {
+  const digits = onlyDigits(codeOrShort);
+  if (!digits) return undefined;
+  // Primary key is 7-digit shortCode
+  const byShort = STORE.samples.get(digits);
+  if (byShort) return byShort;
+  // Try match by fullCode fragments
+  for (const s of STORE.samples.values()) {
+    if (s.fullCode.replace(/\D+/g, '') === digits) return s;
+  }
+  return undefined;
+}
+
+export function searchSamplesLocal(params: { search?: string; page?: number; limit?: number }) {
+  const page = Math.max(1, params.page || 1);
+  const limit = Math.max(1, Math.min(100, params.limit || 20));
+  const q = (params.search || '').toLowerCase().trim();
+  const all = Array.from(STORE.samples.values());
+  const filtered = q
+    ? all.filter((s) =>
+        s.site.toLowerCase().includes(q) ||
+        s.shortCode.includes(q.replace(/\D+/g, '')) ||
+        s.fullCode.toLowerCase().includes(q)
+      )
+    : all;
+  const total = filtered.length;
+  const start = (page - 1) * limit;
+  const data = filtered.slice(start, start + limit);
+  return { data, total, page, limit, totalPages: Math.max(1, Math.ceil(total / limit)) };
+}
+
+export function updateStatusLocal(code: string, next: LocalStatus, notes?: string): LocalSample | undefined {
+  const s = findByCode(code);
+  if (!s) return undefined;
+  s.status = next;
+  s.updatedAt = nowISO();
+  s.timeline.push({ type: next, at: s.updatedAt, notes });
+  return s;
+}
+
+export function uploadReportLocal(code: string, url: string, meta?: { technician?: string; grade?: number; unit?: string }) {
+  const s = findByCode(code);
+  if (!s) return undefined;
+  s.reportUrl = url;
+  s.status = 'Reported';
+  s.updatedAt = nowISO();
+  s.timeline.push({ type: 'Reported', at: s.updatedAt, notes: 'Report uploaded' });
+  if (meta?.technician) s.technician = meta.technician;
+  return s;
+}
+
+export function deleteSampleLocal(code: string): boolean {
+  const s = findByCode(code);
+  if (!s) return false;
+  return STORE.samples.delete(s.id);
+}

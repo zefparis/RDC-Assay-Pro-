@@ -38,6 +38,19 @@ export interface Translations {
       description: string;
     };
     supervision: string;
+    preregister?: {
+      title: string;
+      description: string;
+      site: string;
+      contact: string;
+      create: string;
+      codeIssued: string;
+      fullCode: string;
+      copy: string;
+      share: string;
+      print: string;
+      error: string;
+    };
   };
   
   // Sample tracking
@@ -54,6 +67,7 @@ export interface Translations {
     status: string;
     timeline: string;
     qrTraceability: string;
+    invalidCheckDigit?: string;
   };
   
   // Sample submission
@@ -243,6 +257,19 @@ export const translations: Record<Locale, Translations> = {
         description: 'Rapports signés, hashés, QR code et export-ready.',
       },
       supervision: 'Supervision de chargement',
+      preregister: {
+        title: 'Pré‑enregistrer un échantillon',
+        description: 'Obtenez un code de suivi avant ramassage.',
+        site: 'Site',
+        contact: 'Contact',
+        create: 'Créer le code',
+        codeIssued: 'Code émis',
+        fullCode: 'Code complet',
+        copy: 'Copier',
+        share: 'Partager',
+        print: 'Imprimer étiquette',
+        error: 'Échec du pré‑enregistrement',
+      },
     },
     tracking: {
       title: 'Suivre un échantillon',
@@ -257,6 +284,7 @@ export const translations: Record<Locale, Translations> = {
       status: 'Statut',
       timeline: 'Timeline',
       qrTraceability: 'QR traceability',
+      invalidCheckDigit: 'Code invalide (contrôle). Vérifiez le chiffre de contrôle.',
     },
     submission: {
       title: 'Soumettre un échantillon',
@@ -450,6 +478,19 @@ export const translations: Record<Locale, Translations> = {
         description: 'Signed, hashed reports, QR code and export-ready.',
       },
       supervision: 'Loading supervision',
+      preregister: {
+        title: 'Pre‑register a sample',
+        description: 'Get a tracking code before pickup.',
+        site: 'Site',
+        contact: 'Contact',
+        create: 'Create code',
+        codeIssued: 'Code issued',
+        fullCode: 'Full code',
+        copy: 'Copy',
+        share: 'Share',
+        print: 'Print label',
+        error: 'Pre‑registration failed',
+      },
     },
     tracking: {
       title: 'Track a sample',
@@ -464,6 +505,7 @@ export const translations: Record<Locale, Translations> = {
       status: 'Status',
       timeline: 'Timeline',
       qrTraceability: 'QR traceability',
+      invalidCheckDigit: 'Invalid code (check digit). Please verify.',
     },
     submission: {
       title: 'Submit a sample',

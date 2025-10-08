@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Search, ChevronRight, QrCode, CheckCircle2, Clock, AlertCircle } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { api } from '@/lib/api';
+import { normalizeTrackingInput, looksLikeNumericCode, formatShortCodeDisplay } from '@/lib/code';
 import { Sample } from '@/types';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
@@ -27,7 +28,14 @@ const SampleTracker: React.FC = () => {
     try {
       setError('');
       setLoading(true);
-      const response = await api.searchSamples(query);
+      // Normalize numeric code input (7-digit short code with optional check digit)
+      const norm = normalizeTrackingInput(query);
+      if (norm.error) {
+        setError(norm.error);
+        setSamples([]);
+        return;
+      }
+      const response = await api.searchSamples(norm.search);
       setSamples(response.data);
     } catch (err: any) {
       if (err.message?.includes('Access token required') || err.message?.includes('401')) {
@@ -199,7 +207,7 @@ const SampleRow: React.FC<SampleRowProps> = ({ sample }) => {
             {t.sample?.status[statusKey(sample.status) as 'received'] || sample.status}
           </Badge>
           <div className="font-mono font-semibold text-secondary-900">
-            {sample.id}
+            {looksLikeNumericCode(sample.id) ? formatShortCodeDisplay(sample.id) : sample.id}
           </div>
           <div className="text-sm text-secondary-600">
             {sample.site} • {sample.mineral}

@@ -1,59 +1,72 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { updateStatusLocal, deleteSampleLocal, findByCode } from '@/lib/server/localStore';
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
-
-async function getSampleIdByCode(code: string, bossKey: string): Promise<string> {
-  const resp = await fetch(`${BASE_URL}/samples/code/${encodeURIComponent(code)}`, {
-    headers: {
-      'Content-Type': 'application/json',
-      'X-BOSS-KEY': bossKey,
-      'Authorization': `Bearer ${bossKey}`,
-    },
-  });
-  if (!resp.ok) {
-    const err = await resp.json().catch(() => ({}));
-    throw new Error(err.message || `HTTP ${resp.status}`);
+function toBackendStatusToken(local: string): string {
+  switch (local) {
+    case 'Booked': return 'BOOKED';
+    case 'Pickup Assigned': return 'PICKUP_ASSIGNED';
+    case 'Picked Up': return 'PICKED_UP';
+    case 'In Transit': return 'IN_TRANSIT';
+    case 'At Lab Reception': return 'AT_LAB_RECEPTION';
+    case 'Received': return 'RECEIVED';
+    case 'In Analysis': return 'ANALYZING';
+    case 'QA/QC': return 'QA_QC';
+    case 'Reported': return 'REPORTED';
+    case 'Delivered': return 'DELIVERED';
+    default: return 'RECEIVED';
   }
-  const data = await resp.json();
-  return data.data.sample?.id || data.data.sample?.id || data.data?.id;
+}
+
+function fromBackendToken(token: string): any {
+  switch (token) {
+    case 'BOOKED': return 'Booked';
+    case 'PICKUP_ASSIGNED': return 'Pickup Assigned';
+    case 'PICKED_UP': return 'Picked Up';
+    case 'IN_TRANSIT': return 'In Transit';
+    case 'AT_LAB_RECEPTION': return 'At Lab Reception';
+    case 'RECEIVED': return 'Received';
+    case 'ANALYZING': return 'In Analysis';
+    case 'QA_QC': return 'QA/QC';
+    case 'REPORTED': return 'Reported';
+    case 'DELIVERED': return 'Delivered';
+    default: return 'Received';
+  }
+}
+
+function shape(sample: ReturnType<typeof findByCode>) {
+  if (!sample) return null;
+  return {
+    sampleCode: sample.shortCode,
+    mineral: 'CU',
+    site: sample.site,
+    status: toBackendStatusToken(sample.status),
+    grade: null,
+    unit: 'PERCENT',
+    updatedAt: sample.updatedAt,
+    receivedAt: sample.createdAt,
+    mass: sample.mass,
+    notes: sample.notes,
+    qrCode: undefined,
+    report: sample.reportUrl ? { reportCode: sample.fullCode.replace(/[^A-Z0-9]/g, '') } : null,
+  };
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-
-  const bossKey = process.env.BOSS_KEY || '';
-  if (!bossKey) return res.status(500).json({ error: 'Server not configured: BOSS_KEY missing' });
-
   const { code } = req.query as { code: string };
 
   try {
-    const sampleId = await getSampleIdByCode(code, bossKey);
-
     if (req.method === 'PATCH') {
-      const upstream = await fetch(`${BASE_URL}/samples/${sampleId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-BOSS-KEY': bossKey,
-          'Authorization': `Bearer ${bossKey}`,
-        },
-        body: JSON.stringify(req.body || {}),
-      });
-      const data = await upstream.json().catch(() => ({}));
-      return res.status(upstream.status).json(data);
+      const body = (req.body || {}) as { status?: string; notes?: string };
+      const nextLocal = body.status ? fromBackendToken(body.status) : undefined;
+      if (!nextLocal) return res.status(400).json({ error: 'Missing or invalid status' });
+      const updated = updateStatusLocal(code, nextLocal, body.notes);
+      if (!updated) return res.status(404).json({ error: 'Not found' });
+      return res.status(200).json({ success: true, data: { sample: shape(updated) } });
     }
 
     if (req.method === 'DELETE') {
-      const upstream = await fetch(`${BASE_URL}/samples/${sampleId}`, {
-        method: 'DELETE',
-        headers: {
-          'X-BOSS-KEY': bossKey,
-          'Authorization': `Bearer ${bossKey}`,
-        },
-      });
-      if (!upstream.ok) {
-        const err = await upstream.json().catch(() => ({}));
-        return res.status(upstream.status).json({ error: err.message || `HTTP ${upstream.status}` });
-      }
+      const ok = deleteSampleLocal(code);
+      if (!ok) return res.status(404).json({ error: 'Not found' });
       return res.status(204).end();
     }
 

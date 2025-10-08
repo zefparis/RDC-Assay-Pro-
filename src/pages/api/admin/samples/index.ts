@@ -1,33 +1,52 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { searchSamplesLocal } from '@/lib/server/localStore';
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
+function toBackendStatusToken(local: string): string {
+  switch (local) {
+    case 'Booked': return 'BOOKED';
+    case 'Pickup Assigned': return 'PICKUP_ASSIGNED';
+    case 'Picked Up': return 'PICKED_UP';
+    case 'In Transit': return 'IN_TRANSIT';
+    case 'At Lab Reception': return 'AT_LAB_RECEPTION';
+    case 'Received': return 'RECEIVED';
+    case 'In Analysis': return 'ANALYZING';
+    case 'QA/QC': return 'QA_QC';
+    case 'Reported': return 'REPORTED';
+    case 'Delivered': return 'DELIVERED';
+    default: return 'RECEIVED';
+  }
+}
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-
   if (req.method !== 'GET') {
     res.setHeader('Allow', ['GET']);
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  const bossKey = process.env.BOSS_KEY || '';
-  if (!bossKey) return res.status(500).json({ error: 'Server not configured: BOSS_KEY missing' });
-
   const { page = '1', limit = '20', search } = req.query as Record<string, string>;
-  const query = new URLSearchParams({ page: String(page), limit: String(limit), ...(search ? { search } : {}) });
-
-  const upstream = await fetch(`${BASE_URL}/samples?${query.toString()}`, {
-    headers: {
-      'Content-Type': 'application/json',
-      'X-BOSS-KEY': bossKey,
-      'Authorization': `Bearer ${bossKey}`,
-    },
+  const { data, total, page: p, limit: l, totalPages } = searchSamplesLocal({
+    search,
+    page: Number(page),
+    limit: Number(limit),
   });
 
-  if (!upstream.ok) {
-    const err = await upstream.json().catch(() => ({}));
-    return res.status(upstream.status).json({ error: err.message || `HTTP ${upstream.status}` });
-  }
+  const shaped = data.map((s) => ({
+    sampleCode: s.shortCode,
+    mineral: 'CU',
+    site: s.site,
+    status: toBackendStatusToken(s.status),
+    grade: null,
+    unit: 'PERCENT',
+    updatedAt: s.updatedAt,
+    receivedAt: s.createdAt,
+    mass: s.mass,
+    notes: s.notes,
+    qrCode: undefined,
+    report: s.reportUrl ? { reportCode: s.fullCode.replace(/[^A-Z0-9]/g, '') } : null,
+  }));
 
-  const data = await upstream.json();
-  return res.status(200).json(data);
+  return res.status(200).json({
+    data: shaped,
+    pagination: { total, page: p, limit: l, totalPages },
+  });
 }

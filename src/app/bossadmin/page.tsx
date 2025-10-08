@@ -8,22 +8,28 @@ import toast, { Toaster } from 'react-hot-toast';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
-import Select from '@/components/ui/Select';
 import Badge from '@/components/ui/Badge';
+import Select from '@/components/ui/Select';
 import { useTranslation } from '@/hooks/useTranslation';
 import { api } from '@/lib/api';
 import type { Sample, SampleStatus, Unit } from '@/types';
 
-function statusVariant(s: SampleStatus): React.ComponentProps<typeof Badge>["variant"] {
-  switch (s) {
-    case 'Reported': return 'success';
-    case 'In Analysis': return 'info';
-    case 'QA/QC': return 'warning';
-    case 'Delivered': return 'secondary';
-    case 'Received':
-    default: return 'default';
+  function statusVariant(s: SampleStatus): React.ComponentProps<typeof Badge>["variant"] {
+    switch (s) {
+      case 'Booked': return 'secondary';
+      case 'Pickup Assigned': return 'secondary';
+      case 'Picked Up': return 'info';
+      case 'In Transit': return 'info';
+      case 'At Lab Reception': return 'secondary';
+      case 'Reported': return 'success';
+      case 'In Analysis': return 'info';
+      case 'QA/QC': return 'warning';
+      case 'Delivered': return 'secondary';
+      case 'Received':
+      default: return 'default';
+    }
   }
-}
+
 
 export default function BossAdminPage() {
   const { t, locale } = useTranslation();
@@ -45,14 +51,19 @@ export default function BossAdminPage() {
   const [grade, setGrade] = useState<string>('');
   const [unit, setUnit] = useState<Unit | ''>('');
 
-  // Status options (localized)
+  // Status options (include pre-lab; fallback labels for new ones)
   const statusOptions = useMemo(() => ([
+    { value: 'Booked', label: locale === 'fr' ? 'Pré‑enregistré' : 'Booked' },
+    { value: 'Pickup Assigned', label: locale === 'fr' ? 'Ramassage assigné' : 'Pickup Assigned' },
+    { value: 'Picked Up', label: locale === 'fr' ? 'Ramassé' : 'Picked Up' },
+    { value: 'In Transit', label: locale === 'fr' ? 'En transit' : 'In Transit' },
+    { value: 'At Lab Reception', label: locale === 'fr' ? 'Arrivé à la réception labo' : 'At Lab Reception' },
     { value: 'Received', label: t.sample?.status.received || 'Received' },
     { value: 'In Analysis', label: t.sample?.status.inAnalysis || 'In Analysis' },
     { value: 'QA/QC', label: t.sample?.status.qualityCheck || 'QA/QC' },
     { value: 'Reported', label: t.sample?.status.reported || 'Reported' },
     { value: 'Delivered', label: t.sample?.status.delivered || 'Delivered' },
-  ] as Array<{ value: SampleStatus; label: string }>), [t.sample?.status]);
+  ] as Array<{ value: SampleStatus; label: string }>), [locale, t.sample?.status]);
 
   const unitOptions = [
     { value: '%', label: '%' },
@@ -94,6 +105,17 @@ export default function BossAdminPage() {
       setItems(prev => prev.map(it => it.id === updated.id ? updated : it));
       toast.success(t.bossadmin?.notifications.statusUpdated || 'Status updated');
       setEditing(null);
+    } catch (e: any) {
+      toast.error(e?.message || 'Update failed');
+    }
+  };
+
+  // Quick actions for pre-lab statuses
+  const setStatusQuick = async (s: Sample, next: SampleStatus, note?: string) => {
+    try {
+      const updated = await api.adminUpdateSampleStatus(s.id, next, note);
+      setItems(prev => prev.map(it => it.id === updated.id ? updated : it));
+      toast.success(t.bossadmin?.notifications.statusUpdated || 'Status updated');
     } catch (e: any) {
       toast.error(e?.message || 'Update failed');
     }
@@ -180,7 +202,27 @@ export default function BossAdminPage() {
                           <td className="py-2 pr-4"><Badge variant={statusVariant(s.status)}>{s.status}</Badge></td>
                           <td className="py-2 pr-4">{s.updatedAt}</td>
                           <td className="py-2 pr-4">
-                            <div className="flex gap-2">
+                            <div className="flex flex-wrap gap-2">
+                              {/* Quick pre-lab actions (shown until Received) */}
+                              {(['Booked','Pickup Assigned','Picked Up','In Transit','At Lab Reception'] as SampleStatus[]).includes(s.status as SampleStatus) && (
+                                <>
+                                  <Button variant="outline" size="sm" onClick={() => {
+                                    const n = window.prompt(locale === 'fr' ? 'Assignation (notes optionnelles)' : 'Assign pickup (optional notes)') || undefined;
+                                    setStatusQuick(s, 'Pickup Assigned', n);
+                                  }}>
+                                    {locale === 'fr' ? 'Assigner' : 'Assign'}
+                                  </Button>
+                                  <Button variant="outline" size="sm" onClick={() => setStatusQuick(s, 'Picked Up')}>
+                                    {locale === 'fr' ? 'Ramassé' : 'Picked up'}
+                                  </Button>
+                                  <Button variant="outline" size="sm" onClick={() => setStatusQuick(s, 'In Transit')}>
+                                    {locale === 'fr' ? 'Transit' : 'Transit'}
+                                  </Button>
+                                  <Button variant="outline" size="sm" onClick={() => setStatusQuick(s, 'At Lab Reception')}>
+                                    {locale === 'fr' ? 'Arrivé labo' : 'At lab'}
+                                  </Button>
+                                </>
+                              )}
                               <Button variant="outline" size="sm" icon={<Edit3 className="w-4 h-4" />} onClick={() => openEdit(s)}>
                                 {t.bossadmin?.actions.edit || 'Edit'}
                               </Button>

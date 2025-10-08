@@ -1,65 +1,50 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { uploadReportLocal, findByCode } from '@/lib/server/localStore';
 
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
-
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
-
-async function getSampleIdByCode(code: string, bossKey: string): Promise<string> {
-  const resp = await fetch(`${BASE_URL}/samples/code/${encodeURIComponent(code)}`, {
-    headers: {
-      'Content-Type': 'application/json',
-      'X-BOSS-KEY': bossKey,
-    },
-  });
-  if (!resp.ok) {
-    const err = await resp.json().catch(() => ({}));
-    throw new Error(err.message || `HTTP ${resp.status}`);
+function toBackendStatusToken(local: string): string {
+  switch (local) {
+    case 'Booked': return 'BOOKED';
+    case 'Pickup Assigned': return 'PICKUP_ASSIGNED';
+    case 'Picked Up': return 'PICKED_UP';
+    case 'In Transit': return 'IN_TRANSIT';
+    case 'At Lab Reception': return 'AT_LAB_RECEPTION';
+    case 'Received': return 'RECEIVED';
+    case 'In Analysis': return 'ANALYZING';
+    case 'QA/QC': return 'QA_QC';
+    case 'Reported': return 'REPORTED';
+    case 'Delivered': return 'DELIVERED';
+    default: return 'RECEIVED';
   }
-  const data = await resp.json();
-  return data.data.sample?.id || data.data?.sample?.id || data.data?.id;
+}
+
+function shape(code: string) {
+  const s = findByCode(code);
+  if (!s) return null;
+  return {
+    sampleCode: s.shortCode,
+    mineral: 'CU',
+    site: s.site,
+    status: toBackendStatusToken(s.status),
+    grade: null,
+    unit: 'PERCENT',
+    updatedAt: s.updatedAt,
+    receivedAt: s.createdAt,
+    mass: s.mass,
+    notes: s.notes,
+    qrCode: undefined,
+    report: s.reportUrl ? { reportCode: s.fullCode.replace(/[^A-Z0-9]/g, '') } : null,
+  };
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-
   if (req.method !== 'POST') {
     res.setHeader('Allow', ['POST']);
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
-
-  const bossKey = process.env.BOSS_KEY || '';
-  if (!bossKey) return res.status(500).json({ error: 'Server not configured: BOSS_KEY missing' });
-
   const { code } = req.query as { code: string };
-
-  try {
-    const sampleId = await getSampleIdByCode(code, bossKey);
-
-    // Forward multipart body as-is
-    const upstream = await fetch(`${BASE_URL}/samples/${sampleId}/report`, {
-      method: 'POST',
-      headers: {
-        'X-BOSS-KEY': bossKey,
-        // Preserve content-type including boundary if present
-        'Content-Type': (req.headers['content-type'] as string) || 'application/octet-stream',
-      },
-      // @ts-expect-error: Node IncomingMessage is acceptable as BodyInit in Node fetch
-      body: req,
-    });
-
-    const text = await upstream.text();
-    // Try passthrough JSON if possible
-    try {
-      const json = JSON.parse(text);
-      return res.status(upstream.status).json(json);
-    } catch {
-      res.status(upstream.status).setHeader('Content-Type', upstream.headers.get('content-type') || 'text/plain');
-      return res.send(text);
-    }
-  } catch (e: any) {
-    return res.status(500).json({ error: e?.message || 'Server error' });
-  }
+  // Simulate upload: set a fake URL and mark Reported
+  const url = `https://example.com/reports/${code}.pdf`;
+  const s = uploadReportLocal(code, url);
+  if (!s) return res.status(404).json({ error: 'Not found' });
+  return res.status(200).json({ success: true, data: { sample: shape(code) } });
 }
