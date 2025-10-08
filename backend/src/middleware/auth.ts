@@ -22,27 +22,52 @@ export const authenticate = async (
     // Verify the token
     const decoded = jwt.verify(token, config.jwt.secret) as TokenPayload;
 
-    // Get user from database
-    const user = await prisma.user.findUnique({
-      where: { id: decoded.userId },
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        role: true,
-        company: true,
-        phone: true,
-        avatar: true,
-        isActive: true,
-        isVerified: true,
-        lastLoginAt: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-    });
+    // Get user from database (best-effort)
+    let user = null as unknown as typeof req.user;
+    try {
+      user = await prisma.user.findUnique({
+        where: { id: decoded.userId },
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          role: true,
+          company: true,
+          phone: true,
+          avatar: true,
+          isActive: true,
+          isVerified: true,
+          lastLoginAt: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      });
+    } catch (e: any) {
+      logger.warn('Failed to fetch user from DB in authenticate. Considering demo fallback.', {
+        error: e?.message || e,
+      });
+    }
 
     if (!user) {
-      throw new AppError('User not found', 401);
+      // Demo fallback: trust token payload if feature enabled
+      if (config.features?.demoLoginEnabled && decoded?.email === 'admin@rdcassay.africa') {
+        user = {
+          id: decoded.userId || 'demo-admin',
+          email: decoded.email,
+          name: 'System Administrator',
+          role: (decoded as any).role || 'ADMIN',
+          company: 'RDC Assay Pro',
+          phone: null,
+          avatar: null,
+          isActive: true,
+          isVerified: true,
+          lastLoginAt: new Date(),
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        } as any;
+      } else {
+        throw new AppError('User not found', 401);
+      }
     }
 
     if (!user.isActive) {
@@ -108,26 +133,48 @@ export const optionalAuth = async (
     const token = authHeader.substring(7);
     const decoded = jwt.verify(token, config.jwt.secret) as TokenPayload;
 
-    const user = await prisma.user.findUnique({
-      where: { id: decoded.userId },
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        role: true,
-        company: true,
-        phone: true,
-        avatar: true,
-        isActive: true,
-        isVerified: true,
-        lastLoginAt: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-    });
+    let user = null as unknown as typeof req.user;
+    try {
+      user = await prisma.user.findUnique({
+        where: { id: decoded.userId },
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          role: true,
+          company: true,
+          phone: true,
+          avatar: true,
+          isActive: true,
+          isVerified: true,
+          lastLoginAt: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      });
+    } catch (e: any) {
+      logger.warn('Failed to fetch user from DB in optionalAuth. Considering demo fallback.', {
+        error: e?.message || e,
+      });
+    }
 
     if (user && user.isActive) {
       req.user = user;
+    } else if (config.features?.demoLoginEnabled && decoded?.email === 'admin@rdcassay.africa') {
+      req.user = {
+        id: decoded.userId || 'demo-admin',
+        email: decoded.email,
+        name: 'System Administrator',
+        role: (decoded as any).role || 'ADMIN',
+        company: 'RDC Assay Pro',
+        phone: null,
+        avatar: null,
+        isActive: true,
+        isVerified: true,
+        lastLoginAt: new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      } as any;
     }
 
     next();

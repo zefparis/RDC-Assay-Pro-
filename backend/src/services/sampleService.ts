@@ -1,5 +1,6 @@
 import { Sample, SampleStatus, MineralType, Unit, Prisma } from '@prisma/client';
 import { prisma } from '@/config/database';
+import { config } from '@/config/environment';
 import { AppError, CreateSampleRequest, UpdateSampleRequest, SampleSearchQuery, PaginatedResponse } from '@/types';
 import { logger } from '@/utils/logger';
 
@@ -10,16 +11,24 @@ export class SampleService {
     const year = new Date().getFullYear().toString().slice(-2);
     
     // Get the last sample number for this year
-    const lastSample = await prisma.sample.findFirst({
-      where: {
-        sampleCode: {
-          startsWith: `${prefix}-${year}`,
+    let lastSample: Sample | null = null;
+    try {
+      lastSample = await prisma.sample.findFirst({
+        where: {
+          sampleCode: {
+            startsWith: `${prefix}-${year}`,
+          },
         },
-      },
-      orderBy: {
-        sampleCode: 'desc',
-      },
-    });
+        orderBy: {
+          sampleCode: 'desc',
+        },
+      });
+    } catch (e: any) {
+      // In demo mode or if DB not ready, continue with fallback counter starting at 0
+      logger.warn('Failed to query last sample for code generation. Using fallback counter.', {
+        error: e?.message || e,
+      });
+    }
 
     let nextNumber = 1;
     if (lastSample) {
@@ -34,51 +43,85 @@ export class SampleService {
   async createSample(data: CreateSampleRequest, clientId: string): Promise<Sample> {
     const sampleCode = await this.generateSampleCode();
 
-    const sample = await prisma.sample.create({
-      data: {
-        sampleCode,
-        mineral: data.mineral as MineralType,
-        site: data.site,
-        unit: data.unit as Unit,
-        mass: data.mass,
-        notes: data.notes,
-        priority: data.priority || 1,
-        dueDate: data.dueDate ? new Date(data.dueDate) : null,
-        clientId,
-      },
-      include: {
-        client: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            company: true,
+    try {
+      const sample = await prisma.sample.create({
+        data: {
+          sampleCode,
+          mineral: data.mineral as MineralType,
+          site: data.site,
+          unit: data.unit as Unit,
+          mass: data.mass,
+          notes: data.notes,
+          priority: data.priority || 1,
+          dueDate: data.dueDate ? new Date(data.dueDate) : null,
+          clientId,
+        },
+        include: {
+          client: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              company: true,
+            },
+          },
+          timeline: {
+            orderBy: {
+              timestamp: 'asc',
+            },
           },
         },
-        timeline: {
-          orderBy: {
-            timestamp: 'asc',
-          },
+      });
+
+      // Create initial timeline event
+      await prisma.timelineEvent.create({
+        data: {
+          sampleId: sample.id,
+          status: 'RECEIVED',
+          notes: 'Sample received and logged into system',
         },
-      },
-    });
+      });
 
-    // Create initial timeline event
-    await prisma.timelineEvent.create({
-      data: {
-        sampleId: sample.id,
-        status: 'RECEIVED',
-        notes: 'Sample received and logged into system',
-      },
-    });
+      logger.info('Sample created successfully:', { 
+        sampleId: sample.id, 
+        sampleCode: sample.sampleCode,
+        clientId 
+      });
 
-    logger.info('Sample created successfully:', { 
-      sampleId: sample.id, 
-      sampleCode: sample.sampleCode,
-      clientId 
-    });
+      return sample;
+    } catch (e: any) {
+      // Demo fallback: if DB write fails and demo mode is enabled, return an in-memory sample
+      if (config.features?.demoLoginEnabled) {
+        const now = new Date();
+        const demoSample: Sample = {
+          id: `demo-${Math.random().toString(36).slice(2)}`,
+          sampleCode,
+          mineral: data.mineral as MineralType,
+          site: data.site,
+          status: 'RECEIVED' as SampleStatus,
+          grade: null,
+          unit: data.unit as Unit,
+          mass: data.mass,
+          notes: (data.notes as any) ?? null,
+          clientId,
+          analystId: null,
+          priority: data.priority || 1,
+          receivedAt: now,
+          dueDate: data.dueDate ? new Date(data.dueDate) : null,
+          completedAt: null,
+          createdAt: now,
+          updatedAt: now,
+        } as unknown as Sample;
 
-    return sample;
+        logger.warn('DEMO SAMPLE FALLBACK USED (no DB write). Ensure migrations/seed are applied in production.', {
+          error: e?.message || e,
+        });
+
+        return demoSample;
+      }
+
+      throw e;
+    }
   }
 
   // Get sample by ID
