@@ -1,4 +1,4 @@
-import { Sample, SampleSubmission, Report, DashboardStats, ApiResponse, PaginatedResponse } from '@/types';
+import { Sample, SampleSubmission, Report, DashboardStats, ApiResponse, PaginatedResponse, MineralType, SampleStatus, Unit } from '@/types';
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
 
@@ -34,16 +34,15 @@ const apiRequest = async (endpoint: string, options: RequestInit = {}): Promise<
 };
 
 // Map backend status to frontend status
-const mapStatus = (backendStatus: string): string => {
-  const statusMap: Record<string, string> = {
+const mapStatus = (backendStatus: string): SampleStatus => {
+  const statusMap: Record<string, SampleStatus> = {
     'RECEIVED': 'Received',
     'PREP': 'Prep',
     'ANALYZING': 'Analyzing',
     'QA_QC': 'QA/QC',
     'REPORTED': 'Reported',
-    'CANCELLED': 'Cancelled'
   };
-  return statusMap[backendStatus] || backendStatus;
+  return statusMap[backendStatus] || 'Received'; // Default fallback
 };
 
 // Map frontend status to backend status
@@ -54,14 +53,13 @@ const mapStatusToBackend = (frontendStatus: string): string => {
     'Analyzing': 'ANALYZING',
     'QA/QC': 'QA_QC',
     'Reported': 'REPORTED',
-    'Cancelled': 'CANCELLED'
   };
   return statusMap[frontendStatus] || frontendStatus;
 };
 
 // Map backend mineral to frontend mineral
-const mapMineral = (backendMineral: string): string => {
-  const mineralMap: Record<string, string> = {
+const mapMineral = (backendMineral: string): MineralType => {
+  const mineralMap: Record<string, MineralType> = {
     'CU': 'Cu',
     'CO': 'Co',
     'LI': 'Li',
@@ -71,14 +69,14 @@ const mapMineral = (backendMineral: string): string => {
     'W': 'W',
     'ZN': 'Zn',
     'PB': 'Pb',
-    'NI': 'Ni'
+    'NI': 'Ni',
   };
-  return mineralMap[backendMineral] || backendMineral;
+  return mineralMap[backendMineral] || 'Cu'; // Default fallback
 };
 
 // Map frontend mineral to backend mineral
-const mapMineralToBackend = (frontendMineral: string): string => {
-  const mineralMap: Record<string, string> = {
+const mapMineralToBackend = (frontendMineral: MineralType): string => {
+  const mineralMap: Record<MineralType, string> = {
     'Cu': 'CU',
     'Co': 'CO',
     'Li': 'LI',
@@ -94,14 +92,14 @@ const mapMineralToBackend = (frontendMineral: string): string => {
 };
 
 // Map backend unit to frontend unit
-const mapUnit = (backendUnit: string): string => {
-  const unitMap: Record<string, string> = {
+const mapUnit = (backendUnit: string): Unit => {
+  const unitMap: Record<string, Unit> = {
     'PERCENT': '%',
     'GRAMS_PER_TON': 'g/t',
     'PPM': 'ppm',
     'OUNCES_PER_TON': 'oz/t'
   };
-  return unitMap[backendUnit] || backendUnit;
+  return unitMap[backendUnit] || '%'; // Default fallback
 };
 
 // Map frontend unit to backend unit
@@ -242,7 +240,7 @@ export const api = {
   },
 
   // Reports management
-  async getReports(filter: { mineral?: string; site?: string; page?: number; limit?: number } = {}): Promise<PaginatedResponse<Report>> {
+  async getReports(filter: { mineral?: MineralType; site?: string; page?: number; limit?: number } = {}): Promise<PaginatedResponse<Report>> {
     const params = new URLSearchParams({
       page: (filter.page || 1).toString(),
       limit: (filter.limit || 10).toString(),

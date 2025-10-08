@@ -1,5 +1,4 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import { clsx } from 'clsx';
 
 export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -25,27 +24,20 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
       lg: 'p-6',
     };
 
-    const Component = hover ? motion.div : 'div';
-    const motionProps = hover ? {
-      whileHover: { y: -2, shadow: 'strong' },
-      transition: { duration: 0.2 }
-    } : {};
-
     return (
-      <Component
+      <div
         ref={ref}
         className={clsx(
           baseClasses,
           variants[variant],
           paddings[padding],
-          hover && 'cursor-pointer',
+          hover && 'cursor-pointer hover:-translate-y-0.5 hover:shadow-strong',
           className
         )}
-        {...motionProps}
         {...props}
       >
         {children}
-      </Component>
+      </div>
     );
   }
 );
