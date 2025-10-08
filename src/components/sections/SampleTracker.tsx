@@ -7,6 +7,7 @@ import { Sample } from '@/types';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import Card from '@/components/ui/Card';
+import Image from 'next/image';
 import Badge from '@/components/ui/Badge';
 
 const SampleTracker: React.FC = () => {
@@ -245,6 +246,23 @@ const SampleRow: React.FC<SampleRowProps> = ({ sample }) => {
                       </div>
                     </div>
                   ))}
+                </div>
+              </div>
+            )}
+
+            {/* QR Traceability */}
+            {details.qrCode && (
+              <div className="mt-6 grid sm:grid-cols-[auto_1fr] gap-4 items-center">
+                <Image
+                  src={details.qrCode}
+                  alt={`QR ${details.id}`}
+                  width={112}
+                  height={112}
+                  className="rounded-lg bg-white p-1 border border-secondary-200 shadow-sm"
+                />
+                <div>
+                  <div className="text-sm text-secondary-500 mb-1">{t.tracking.qrTraceability}</div>
+                  <div className="text-sm text-secondary-700">Scannez ce QR pour accéder au suivi public.</div>
                 </div>
               </div>
             )}

@@ -3,6 +3,7 @@ import { prisma } from '@/config/database';
 import { config } from '@/config/environment';
 import { AppError, CreateSampleRequest, UpdateSampleRequest, SampleSearchQuery, PaginatedResponse } from '@/types';
 import { logger } from '@/utils/logger';
+import QRCode from 'qrcode';
 
 export class SampleService {
   // Generate unique sample code
@@ -37,6 +38,12 @@ export class SampleService {
     }
 
     return `${prefix}-${year}${nextNumber.toString().padStart(4, '0')}`;
+  }
+
+  // Generate QR code for sample tracking
+  private async generateSampleQRCode(sampleCode: string): Promise<string> {
+    const trackUrl = `${process.env.FRONTEND_URL || 'https://rdcassay.africa'}/track/${sampleCode}`;
+    return await QRCode.toDataURL(trackUrl);
   }
 
   // Create new sample
@@ -179,55 +186,112 @@ export class SampleService {
 
   // Get sample by code
   async getSampleByCode(sampleCode: string, userId?: string, userRole?: string): Promise<Sample> {
-    const sample = await prisma.sample.findUnique({
-      where: { sampleCode },
-      include: {
-        client: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            company: true,
+    try {
+      const sample = await prisma.sample.findUnique({
+        where: { sampleCode },
+        include: {
+          client: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              company: true,
+            },
+          },
+          timeline: {
+            orderBy: {
+              timestamp: 'asc',
+            },
+          },
+          documents: {
+            select: {
+              id: true,
+              filename: true,
+              originalName: true,
+              mimeType: true,
+              size: true,
+              uploadedAt: true,
+            },
+          },
+          report: {
+            select: {
+              id: true,
+              reportCode: true,
+              grade: true,
+              unit: true,
+              certified: true,
+              issuedAt: true,
+            },
           },
         },
-        timeline: {
-          orderBy: {
-            timestamp: 'asc',
-          },
-        },
-        documents: {
-          select: {
-            id: true,
-            filename: true,
-            originalName: true,
-            mimeType: true,
-            size: true,
-            uploadedAt: true,
-          },
-        },
-        report: {
-          select: {
-            id: true,
-            reportCode: true,
-            grade: true,
-            unit: true,
-            certified: true,
-            issuedAt: true,
-          },
-        },
-      },
-    });
+      });
 
-    if (!sample) {
-      throw new AppError('Sample not found', 404);
+      if (!sample) {
+        throw new AppError('Sample not found', 404);
+      }
+
+      // Check access permissions
+      if (userId && userRole !== 'ADMIN' && userRole !== 'SUPERVISOR' && sample.clientId !== userId) {
+        throw new AppError('Access denied', 403);
+      }
+
+      // Attach QR code (best-effort)
+      try {
+        const qr = await this.generateSampleQRCode(sample.sampleCode);
+        (sample as any).qrCode = qr;
+      } catch (e: any) {
+        logger.warn('Failed to generate QR code for sample', { error: e?.message || e });
+      }
+
+      return sample as any;
+    } catch (e: any) {
+      if (config.features?.demoLoginEnabled) {
+        // Demo fallback: synthesize a sample with minimal fields and a QR code
+        const now = new Date();
+        const demoSample: any = {
+          id: `demo-${sampleCode}`,
+          sampleCode,
+          mineral: 'CU',
+          site: 'Kolwezi',
+          status: 'RECEIVED',
+          grade: null,
+          unit: 'PERCENT',
+          mass: 5,
+          notes: null,
+          clientId: userId || 'demo-client',
+          analystId: null,
+          priority: 1,
+          receivedAt: now,
+          dueDate: null,
+          completedAt: null,
+          createdAt: now,
+          updatedAt: now,
+          client: {
+            id: userId || 'demo-client',
+            name: 'Demo Client',
+            email: 'demo@example.com',
+            company: 'RDC Assay Pro',
+          },
+          timeline: [
+            { id: `tl-${sampleCode}-1`, sampleId: `demo-${sampleCode}`, status: 'RECEIVED', notes: 'Sample created (demo)', userId: null, timestamp: now },
+          ],
+          documents: [],
+          report: null,
+        };
+
+        try {
+          demoSample.qrCode = await this.generateSampleQRCode(sampleCode);
+        } catch (e2: any) {
+          logger.warn('Failed to generate demo QR code for sample', { error: e2?.message || e2 });
+        }
+
+        logger.warn('DEMO SAMPLE BY CODE FALLBACK USED (no DB). Returning synthetic sample.', {
+          error: e?.message || e,
+        });
+        return demoSample as Sample;
+      }
+      throw e;
     }
-
-    // Check access permissions
-    if (userId && userRole !== 'ADMIN' && userRole !== 'SUPERVISOR' && sample.clientId !== userId) {
-      throw new AppError('Access denied', 403);
-    }
-
-    return sample;
   }
 
   // Search samples with pagination
@@ -334,21 +398,43 @@ export class SampleService {
       };
     } catch (e: any) {
       if (config.features?.demoLoginEnabled) {
-        logger.warn('DEMO SAMPLES SEARCH FALLBACK USED (no DB). Returning empty result set.', {
+        logger.warn('DEMO SAMPLES SEARCH FALLBACK USED (no DB).', {
           error: e?.message || e,
         });
+        // If a search term is provided, return a synthetic sample so tracker can work in demo mode
+        const demoList: any[] = [];
+        if (search && typeof search === 'string') {
+          const code = search.toUpperCase();
+          demoList.push({
+            id: `demo-${code}`,
+            sampleCode: code,
+            mineral: 'CU',
+            site: 'Kolwezi',
+            status: 'RECEIVED',
+            grade: null,
+            unit: 'PERCENT',
+            mass: 5,
+            notes: null,
+            client: { id: 'demo-client', name: 'Demo Client', email: 'demo@example.com', company: 'RDC Assay Pro' },
+            timeline: [],
+            report: null,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            receivedAt: new Date(),
+          });
+        }
         return {
           success: true,
-          data: [],
+          data: demoList,
           pagination: {
             page,
             limit,
-            total: 0,
-            totalPages: 0,
+            total: demoList.length,
+            totalPages: demoList.length > 0 ? 1 : 0,
             hasNext: false,
             hasPrev: false,
           },
-        };
+        } as any;
       }
       throw e;
     }

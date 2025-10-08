@@ -17,6 +17,7 @@ export interface Sample {
   notes?: string;
   clientId?: string;
   timeline?: TimelineEvent[];
+  qrCode?: string;
 }
 
 export interface TimelineEvent {

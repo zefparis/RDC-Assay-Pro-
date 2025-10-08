@@ -165,6 +165,7 @@ export const api = {
       createdAt: sample.receivedAt?.split('T')[0],
       mass: sample.mass,
       notes: sample.notes,
+      qrCode: sample.qrCode,
       timeline: sample.timeline?.map((event: any) => ({
         label: mapStatus(event.status),
         done: true,
