@@ -39,12 +39,12 @@ const Hero: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="space-y-6 bg-transparent backdrop-blur-0 p-6 max-w-2xl"
+              className="space-y-6 p-6 max-w-2xl rounded-2xl bg-black/15 backdrop-blur-[1px] md:bg-black/25 md:backdrop-blur-sm"
             >
-              <h1 className="text-4xl lg:text-6xl font-bold text-amber-500 leading-tight drop-shadow-lg">
+              <h1 className="text-4xl lg:text-6xl font-bold text-blue-900 leading-tight drop-shadow-2xl">
                 {t.hero.title}
               </h1>
-              <p className="text-xl text-amber-400 leading-relaxed drop-shadow-lg">
+              <p className="text-xl text-violet-200 leading-relaxed drop-shadow-xl">
                 {t.hero.subtitle}
               </p>
             </motion.div>
@@ -66,7 +66,7 @@ const Hero: React.FC = () => {
                 size="lg"
                 variant="outline"
                 onClick={() => document.getElementById('tracking')?.scrollIntoView({ behavior: 'smooth' })}
-                className="border-amber-500 text-amber-300 hover:bg-amber-500/10"
+                className="border-violet-400 text-violet-200 hover:bg-violet-400/10"
               >
                 {t.hero.trackSample}
               </Button>
@@ -76,9 +76,9 @@ const Hero: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
-              className="flex items-center gap-3 text-sm text-amber-400 opacity-95"
+              className="flex items-center gap-3 text-sm text-violet-200 opacity-95 drop-shadow-md"
             >
-              <ShieldCheck className="w-5 h-5 text-amber-500" />
+              <ShieldCheck className="w-5 h-5 text-violet-300" />
               <span>{t.hero.features}</span>
             </motion.div>
           </div>
