@@ -53,7 +53,7 @@ export const config = {
   upload: {
     maxFileSize: parseInt(env.MAX_FILE_SIZE, 10),
     path: env.UPLOAD_PATH,
-    allowedTypes: ['image/jpeg', 'image/png', 'application/pdf', 'text/csv'],
+    allowedTypes: ['image/jpeg', 'image/png', 'application/pdf', 'text/csv'] as const,
   },
   email: {
     host: env.SMTP_HOST,

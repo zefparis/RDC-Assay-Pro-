@@ -23,8 +23,7 @@
     "noFallthroughCasesInSwitch": false,
     "noUncheckedIndexedAccess": false,
     "declaration": false,
-    "removeComments": true,
-    "suppressImplicitAnyIndexErrors": true
+    "removeComments": true
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "**/*.test.ts", "**/__tests__/**"]

@@ -43,7 +43,7 @@ const storage = multer.diskStorage({
 // File filter function
 const fileFilter = (req: any, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
   // Check if file type is allowed
-  if (config.upload.allowedTypes.includes(file.mimetype)) {
+  if (config.upload.allowedTypes.includes(file.mimetype as any)) {
     cb(null, true);
   } else {
     cb(new AppError(`File type ${file.mimetype} is not allowed`, 400));

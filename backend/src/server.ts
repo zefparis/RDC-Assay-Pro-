@@ -39,6 +39,21 @@ if (config.api.docsEnabled) {
   setupSwagger(app);
 }
 
+// Welcome route
+app.get('/', (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'Welcome to RDC Assay Pro API',
+    version: process.env.npm_package_version || '1.0.0',
+    environment: config.nodeEnv,
+    endpoints: {
+      health: '/health',
+      api: '/api/v1',
+      docs: config.api.docsEnabled ? '/api-docs' : null
+    }
+  });
+});
+
 // Health check
 app.get('/health', (req, res) => {
   res.status(200).json({

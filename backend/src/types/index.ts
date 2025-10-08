@@ -1,9 +1,12 @@
 import { Request } from 'express';
 import { User } from '@prisma/client';
 
+// User type without sensitive fields (like password)
+export type SafeUser = Omit<User, 'password'>;
+
 // Extend Express Request type to include user
 export interface AuthenticatedRequest extends Request {
-  user?: User;
+  user?: SafeUser;
 }
 
 // API Response types
