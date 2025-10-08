@@ -17,10 +17,10 @@ const Header: React.FC<HeaderProps> = ({ onLoginClick }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navItems = [
-    { key: 'services', href: '#services', label: t.nav.services },
-    { key: 'tracking', href: '#tracking', label: t.nav.tracking },
-    { key: 'submit', href: '#submit', label: t.nav.submit },
-    { key: 'reports', href: '#reports', label: t.nav.reports },
+    { key: 'services', href: '/#services', label: t.nav.services },
+    { key: 'tracking', href: '/#tracking', label: t.nav.tracking },
+    { key: 'submit', href: '/#submit', label: t.nav.submit },
+    { key: 'reports', href: '/#reports', label: t.nav.reports },
     { key: 'inspection', href: '/inspection', label: t.nav.inspection || 'Inspection' },
   ];
 
