@@ -84,7 +84,9 @@ export function findByCode(codeOrShort: string): LocalSample | undefined {
   const byShort = STORE.samples.get(digits);
   if (byShort) return byShort;
   // Try match by fullCode fragments
-  for (const s of STORE.samples.values()) {
+  const vals = Array.from(STORE.samples.values());
+  for (let i = 0; i < vals.length; i++) {
+    const s = vals[i];
     if (s.fullCode.replace(/\D+/g, '') === digits) return s;
   }
   return undefined;
