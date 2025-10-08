@@ -10,6 +10,7 @@ export interface Translations {
     dashboard: string;
     login: string;
     logout: string;
+    inspection?: string;
   };
   
   // Hero section
@@ -128,6 +129,52 @@ export interface Translations {
     contact: string;
     api: string;
   };
+
+  // International Inspection
+  inspection?: {
+    hero: {
+      title: string;
+      tagline: string;
+    };
+    why: {
+      title: string;
+      items: string[];
+    };
+    process: {
+      title: string;
+      steps: string[];
+    };
+    pricing: {
+      title: string;
+      columns: { service: string; range: string; variables: string };
+      items: Array<{ service: string; variables: string }>;
+      note: string;
+    };
+    conditions: {
+      title: string;
+      items: string[];
+    };
+    form: {
+      title: string;
+      companyContact: string;
+      location: string;
+      mineralType: string;
+      estimatedVolume: string;
+      serviceType: string;
+      serviceOptions: { inspectionOnly: string; samplingAnalysis: string; portSupervision: string };
+      datePeriod: string;
+      notes: string;
+      attachments: string;
+      submit: string;
+      success: string;
+      error: string;
+      required: string;
+    };
+    faq: {
+      title: string;
+      items: Array<{ q: string; a: string }>;
+    };
+  };
 }
 
 export const translations: Record<Locale, Translations> = {
@@ -140,6 +187,7 @@ export const translations: Record<Locale, Translations> = {
       dashboard: 'Tableau de bord',
       login: 'Se connecter',
       logout: 'Se déconnecter',
+      inspection: 'Inspection internationale',
     },
     hero: {
       title: 'Analyses et certifications minières professionnelles en RDC',
@@ -240,6 +288,74 @@ export const translations: Record<Locale, Translations> = {
       contact: 'Contact',
       api: 'API (mock)',
     },
+    inspection: {
+      hero: {
+        title: 'Inspection internationale et échantillonnage hors RDC',
+        tagline: 'Équipe mobile d\'experts, vérification avant expédition et certification à l\'étranger. Transparence des coûts et traçabilité numérique.',
+      },
+      why: {
+        title: 'Pourquoi ce service',
+        items: [
+          'Crédibilité auprès d\'acheteurs et institutions à l\'étranger',
+          'Vérification pré‑expédition (qualité, quantité, conformité)',
+          'Inspection neutre par un tiers indépendant',
+          'Traçabilité par QR et hash des rapports',
+        ],
+      },
+      process: {
+        title: 'Processus',
+        steps: ['Demande', 'Devis', 'Planification', 'Inspection sur site', 'Analyses', 'Rapport', 'Suivi'],
+      },
+      pricing: {
+        title: 'Tarification indicative',
+        columns: { service: 'Service', range: 'Fourchette estimée', variables: 'Variables' },
+        items: [
+          { service: 'Inspection locale', variables: 'Ville, durée, sécurité' },
+          { service: 'Inspection à l\'étranger', variables: 'Pays, visas, logistique' },
+          { service: 'Supervision au port', variables: 'Port, créneau, accès' },
+        ],
+        note: 'Les coûts finaux dépendent du site, des autorisations, de la sécurité et de la logistique.',
+      },
+      conditions: {
+        title: 'Conditions & contraintes',
+        items: [
+          'Accès et autorisations fournis par le client',
+          'Logistique locale et sécurité à la charge du client',
+          'Conformité douanière et portuaire requise',
+          'Responsabilité limitée à l\'inspection réalisée',
+          'Planification soumise à la disponibilité des équipes',
+        ],
+      },
+      form: {
+        title: 'Demande d\'inspection internationale',
+        companyContact: 'Société / Contact',
+        location: 'Pays / Port / Site',
+        mineralType: 'Type de minerai',
+        estimatedVolume: 'Volume estimé',
+        serviceType: 'Service demandé',
+        serviceOptions: {
+          inspectionOnly: 'Inspection uniquement',
+          samplingAnalysis: 'Échantillonnage + analyses',
+          portSupervision: 'Supervision au port',
+        },
+        datePeriod: 'Date / période',
+        notes: 'Notes',
+        attachments: 'Pièces jointes (optionnel)',
+        submit: 'Envoyer la demande',
+        success: 'Demande envoyée. Notre équipe vous recontacte rapidement.',
+        error: 'Échec de l\'envoi de la demande.',
+        required: 'Champ requis',
+      },
+      faq: {
+        title: 'FAQ',
+        items: [
+          { q: 'La sécurité est‑elle assurée ?', a: 'Nous opérons selon une évaluation des risques et des protocoles validés. La sécurité locale reste sous responsabilité du client.' },
+          { q: 'Quels délais ?', a: 'De 3 à 10 jours selon le pays, les visas et l\'accès au site.' },
+          { q: 'Le rapport est‑il valable ?', a: 'Oui, il inclut hash et QR pour vérification et peut être certifié sur demande.' },
+          { q: 'Pouvez‑vous accéder aux ports ?', a: 'Oui, sous réserve d\'autorisations du terminal et de l\'armateur.' },
+        ],
+      },
+    },
   },
   en: {
     nav: {
@@ -250,6 +366,7 @@ export const translations: Record<Locale, Translations> = {
       dashboard: 'Dashboard',
       login: 'Login',
       logout: 'Logout',
+      inspection: 'International Inspection',
     },
     hero: {
       title: 'Professional mineral analysis and certification in DRC',
@@ -349,6 +466,74 @@ export const translations: Record<Locale, Translations> = {
       description: 'Mineral analysis & certification platform.',
       contact: 'Contact',
       api: 'API (mock)',
+    },
+    inspection: {
+      hero: {
+        title: 'International Inspection & Off-Site Sampling',
+        tagline: 'Mobile team of specialists for abroad verification and certification. Transparent costs and digital traceability.',
+      },
+      why: {
+        title: 'Why this service',
+        items: [
+          'Credibility with buyers and institutions abroad',
+          'Pre‑shipment verification (quality, quantity, compliance)',
+          'Neutral third‑party inspection',
+          'Traceability via QR and report hashing',
+        ],
+      },
+      process: {
+        title: 'Process timeline',
+        steps: ['Request', 'Quotation', 'Planning', 'On‑site inspection', 'Analysis', 'Report', 'Follow‑up'],
+      },
+      pricing: {
+        title: 'Illustrative pricing',
+        columns: { service: 'Service', range: 'Estimated cost range', variables: 'Variables' },
+        items: [
+          { service: 'Local inspection', variables: 'City, duration, security' },
+          { service: 'Abroad inspection', variables: 'Country, visas, logistics' },
+          { service: 'Port supervision', variables: 'Port, time slot, access' },
+        ],
+        note: 'Final costs depend on site, permits, security and logistics.',
+      },
+      conditions: {
+        title: 'Conditions & constraints',
+        items: [
+          'Client provides access and permissions',
+          'Local logistics and security handled by client',
+          'Customs and port compliance required',
+          'Liability limited to performed inspection',
+          'Scheduling subject to team availability',
+        ],
+      },
+      form: {
+        title: 'International Inspection Request',
+        companyContact: 'Company / Contact name',
+        location: 'Country / Port / Site',
+        mineralType: 'Mineral type',
+        estimatedVolume: 'Estimated volume',
+        serviceType: 'Requested service',
+        serviceOptions: {
+          inspectionOnly: 'Inspection only',
+          samplingAnalysis: 'Sampling + analysis',
+          portSupervision: 'Port supervision',
+        },
+        datePeriod: 'Date / period',
+        notes: 'Notes',
+        attachments: 'Attachments (optional)',
+        submit: 'Submit request',
+        success: 'Request sent. Our team will contact you shortly.',
+        error: 'Failed to send the request.',
+        required: 'This field is required',
+      },
+      faq: {
+        title: 'FAQ',
+        items: [
+          { q: 'Is security ensured?', a: 'We operate under a risk assessment and validated protocols. Local security remains client responsibility.' },
+          { q: 'What timeline?', a: 'From 3 to 10 days depending on country, visas and site access.' },
+          { q: 'Is the report valid?', a: 'Yes. It includes hash and QR for verification and can be certified upon request.' },
+          { q: 'Can you access ports?', a: 'Yes, subject to terminal and carrier permissions.' },
+        ],
+      },
     },
   },
 };

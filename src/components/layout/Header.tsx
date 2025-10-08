@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { LogIn, LogOut, Menu, X, Globe, User } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -20,6 +21,7 @@ const Header: React.FC<HeaderProps> = ({ onLoginClick }) => {
     { key: 'tracking', href: '#tracking', label: t.nav.tracking },
     { key: 'submit', href: '#submit', label: t.nav.submit },
     { key: 'reports', href: '#reports', label: t.nav.reports },
+    { key: 'inspection', href: '/inspection', label: t.nav.inspection || 'Inspection' },
   ];
 
   const toggleLocale = () => {
@@ -48,13 +50,23 @@ const Header: React.FC<HeaderProps> = ({ onLoginClick }) => {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-6">
             {navItems.map((item) => (
-              <a
-                key={item.key}
-                href={item.href}
-                className="text-secondary-600 hover:text-primary-600 font-medium transition-colors duration-200"
-              >
-                {item.label}
-              </a>
+              item.href.startsWith('/') ? (
+                <Link
+                  key={item.key}
+                  href={item.href}
+                  className="text-secondary-600 hover:text-primary-600 font-medium transition-colors duration-200"
+                >
+                  {item.label}
+                </Link>
+              ) : (
+                <a
+                  key={item.key}
+                  href={item.href}
+                  className="text-secondary-600 hover:text-primary-600 font-medium transition-colors duration-200"
+                >
+                  {item.label}
+                </a>
+              )
             ))}
           </nav>
 
@@ -119,14 +131,25 @@ const Header: React.FC<HeaderProps> = ({ onLoginClick }) => {
           >
             <div className="flex flex-col gap-3">
               {navItems.map((item) => (
-                <a
-                  key={item.key}
-                  href={item.href}
-                  className="text-secondary-600 hover:text-primary-600 font-medium py-2 transition-colors duration-200"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  {item.label}
-                </a>
+                item.href.startsWith('/') ? (
+                  <Link
+                    key={item.key}
+                    href={item.href}
+                    className="text-secondary-600 hover:text-primary-600 font-medium py-2 transition-colors duration-200"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    {item.label}
+                  </Link>
+                ) : (
+                  <a
+                    key={item.key}
+                    href={item.href}
+                    className="text-secondary-600 hover:text-primary-600 font-medium py-2 transition-colors duration-200"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    {item.label}
+                  </a>
+                )
               ))}
               <div className="flex items-center gap-2 pt-2 border-t border-secondary-200">
                 <Button
