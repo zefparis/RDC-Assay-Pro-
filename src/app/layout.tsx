@@ -5,13 +5,13 @@ import './globals.css';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'RDC Assay Pro - Mineral Analysis & Certification Platform',
-  description: 'Professional mineral assay and certification platform for DRC. Sampling, analysis, certification and digital traceability.',
-  keywords: 'mineral analysis, assay, certification, DRC, mining, laboratory, traceability',
-  authors: [{ name: 'RDC Assay Team' }],
+  title: 'GeoCert Africa — Filiale de SGS | Mineral Analysis & Certification',
+  description: 'GeoCert Africa — Filiale de SGS. Sampling, analysis, certification and digital traceability for mining operations.',
+  keywords: 'geocert africa, sgs, mineral analysis, assay, certification, mining, laboratory, traceability',
+  authors: [{ name: 'GeoCert Africa' }],
   openGraph: {
-    title: 'RDC Assay Pro',
-    description: 'Professional mineral analysis & certification platform',
+    title: 'GeoCert Africa — Filiale de SGS',
+    description: 'Mineral analysis & certification platform',
     type: 'website',
     locale: 'fr_FR',
     alternateLocale: 'en_US',

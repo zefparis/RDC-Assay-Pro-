@@ -270,7 +270,7 @@ export class SampleService {
             id: userId || 'demo-client',
             name: 'Demo Client',
             email: 'demo@example.com',
-            company: 'RDC Assay Pro',
+            company: 'GeoCert Africa — Filiale de SGS',
           },
           timeline: [
             { id: `tl-${sampleCode}-1`, sampleId: `demo-${sampleCode}`, status: 'RECEIVED', notes: 'Sample created (demo)', userId: null, timestamp: now },
@@ -415,7 +415,7 @@ export class SampleService {
             unit: 'PERCENT',
             mass: 5,
             notes: null,
-            client: { id: 'demo-client', name: 'Demo Client', email: 'demo@example.com', company: 'RDC Assay Pro' },
+            client: { id: 'demo-client', name: 'Demo Client', email: 'demo@example.com', company: 'GeoCert Africa — Filiale de SGS' },
             timeline: [],
             report: null,
             createdAt: new Date(),

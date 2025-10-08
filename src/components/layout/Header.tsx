@@ -39,11 +39,11 @@ const Header: React.FC<HeaderProps> = ({ onLoginClick }) => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              R
+              G
             </motion.div>
             <div className="flex items-center gap-2">
-              <span className="font-bold text-xl text-secondary-900">RDC Assay</span>
-              <Badge variant="info" size="sm">Pro</Badge>
+              <span className="font-bold text-xl text-secondary-900">GeoCert Africa</span>
+              <Badge variant="info" size="sm">Filiale de SGS</Badge>
             </div>
           </div>
 
