@@ -37,6 +37,36 @@ export const SAMPLE_STATUSES: Record<SampleStatus, {
   bgColor: string; 
   description: string;
 }> = {
+  'Booked': {
+    label: 'Booked',
+    color: 'text-secondary-700',
+    bgColor: 'bg-secondary-100',
+    description: 'Pickup requested and tracking code issued',
+  },
+  'Pickup Assigned': {
+    label: 'Pickup Assigned',
+    color: 'text-secondary-700',
+    bgColor: 'bg-secondary-100',
+    description: 'Courier assigned for pickup',
+  },
+  'Picked Up': {
+    label: 'Picked Up',
+    color: 'text-info-700',
+    bgColor: 'bg-info-100',
+    description: 'Sample has been picked up and is en route',
+  },
+  'In Transit': {
+    label: 'In Transit',
+    color: 'text-info-700',
+    bgColor: 'bg-info-100',
+    description: 'Sample is in transit to the laboratory',
+  },
+  'At Lab Reception': {
+    label: 'At Lab Reception',
+    color: 'text-secondary-700',
+    bgColor: 'bg-secondary-100',
+    description: 'Sample arrived at lab reception',
+  },
   'Received': {
     label: 'Received',
     color: 'text-secondary-700',
