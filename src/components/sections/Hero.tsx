@@ -41,10 +41,10 @@ const Hero: React.FC = () => {
               transition={{ duration: 0.6 }}
               className="space-y-6 bg-transparent backdrop-blur-0 p-6 max-w-2xl"
             >
-              <h1 className="text-4xl lg:text-6xl font-bold text-white leading-tight drop-shadow-lg">
+              <h1 className="text-4xl lg:text-6xl font-bold text-amber-200 leading-tight drop-shadow-lg">
                 {t.hero.title}
               </h1>
-              <p className="text-xl text-white/90 leading-relaxed drop-shadow-lg">
+              <p className="text-xl text-amber-100 leading-relaxed drop-shadow-lg">
                 {t.hero.subtitle}
               </p>
             </motion.div>
@@ -66,7 +66,7 @@ const Hero: React.FC = () => {
                 size="lg"
                 variant="outline"
                 onClick={() => document.getElementById('tracking')?.scrollIntoView({ behavior: 'smooth' })}
-                className="border-white text-white hover:bg-white/10"
+                className="border-amber-300 text-amber-100 hover:bg-amber-300/10"
               >
                 {t.hero.trackSample}
               </Button>
@@ -76,9 +76,9 @@ const Hero: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
-              className="flex items-center gap-3 text-sm text-white/80"
+              className="flex items-center gap-3 text-sm text-amber-100 opacity-90"
             >
-              <ShieldCheck className="w-5 h-5 text-white" />
+              <ShieldCheck className="w-5 h-5 text-amber-200" />
               <span>{t.hero.features}</span>
             </motion.div>
           </div>
