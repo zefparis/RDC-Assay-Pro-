@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import compression from 'compression';
 import { config } from '@/config/environment';
+import { connectDatabase } from '@/config/database';
 import { logger } from '@/utils/logger';
 import { errorHandler } from '@/middleware/errorHandler';
 import rateLimiter from '@/middleware/rateLimiter';
@@ -80,11 +81,20 @@ app.use('*', (req, res) => {
 // Error handling middleware
 app.use(errorHandler);
 
-const server = app.listen(config.port, () => {
-  logger.info(`🚀 Server running on port ${config.port} in ${config.nodeEnv} mode`);
-  logger.info(`📚 API Documentation: http://localhost:${config.port}/api-docs`);
-  logger.info(`🏥 Health Check: http://localhost:${config.port}/health`);
-});
+// Start server after DB connection
+let server: any;
+connectDatabase()
+  .then(() => {
+    server = app.listen(config.port, () => {
+      logger.info(`🚀 Server running on port ${config.port} in ${config.nodeEnv} mode`);
+      logger.info(`📚 API Documentation: http://localhost:${config.port}/api-docs`);
+      logger.info(`🏥 Health Check: http://localhost:${config.port}/health`);
+    });
+  })
+  .catch((err) => {
+    logger.error('Failed to connect to database. Server not started.', { error: (err as Error).message });
+    process.exit(1);
+  });
 
 // Graceful shutdown
 process.on('SIGTERM', () => {

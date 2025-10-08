@@ -17,7 +17,7 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:deploy": "sh -c \"prisma migrate deploy || prisma db push\"",
     "prisma:studio": "prisma studio",
-    "seed": "ts-node src/prisma/seed.ts",
+    "seed": "node dist/prisma/seed.js",
     "deploy:railway": "npm run build && npm run prisma:deploy && npm run seed"
   },
   "dependencies": {
