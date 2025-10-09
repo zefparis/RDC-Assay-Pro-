@@ -57,6 +57,11 @@ export default function BossAdminPage() {
   const [invTtl, setInvTtl] = useState(60);
   const [invLoading, setInvLoading] = useState(false);
 
+  // Boss auth
+  const [needBossAuth, setNeedBossAuth] = useState(false);
+  const [bossPwd, setBossPwd] = useState('');
+  const [bossLoading, setBossLoading] = useState(false);
+
   // Status options (include pre-lab; fallback labels for new ones)
   const statusOptions = useMemo(() => ([
     { value: 'Booked', label: locale === 'fr' ? 'Pré‑enregistré' : 'Booked' },
@@ -93,7 +98,12 @@ export default function BossAdminPage() {
       setPage(resp.page);
       setTotalPages(resp.totalPages);
     } catch (err: any) {
-      toast.error(err.message || (locale === 'fr' ? 'Erreur de chargement' : 'Load error'));
+      const msg = String(err?.message || '');
+      if (msg.includes('401') || /unauthorized/i.test(msg)) {
+        setNeedBossAuth(true);
+      } else {
+        toast.error(msg || (locale === 'fr' ? 'Erreur de chargement' : 'Load error'));
+      }
     } finally {
       setLoading(false);
     }
@@ -195,6 +205,32 @@ export default function BossAdminPage() {
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
           {
             <div className="space-y-6">
+              {needBossAuth && (
+                <Card padding="lg" className="shadow-strong border border-amber-300 bg-amber-50">
+                  <div className="text-lg font-bold mb-1">{locale === 'fr' ? 'Authentification Admin' : 'Admin Authentication'}</div>
+                  <p className="text-secondary-700 mb-3">{locale === 'fr' ? 'Entrez le mot de passe boss pour accéder au panneau d\'administration.' : 'Enter the boss password to access the admin panel.'}</p>
+                  <div className="flex gap-2">
+                    <Input type="password" placeholder={locale === 'fr' ? 'Mot de passe' : 'Password'} value={bossPwd} onChange={(e) => setBossPwd(e.target.value)} className="flex-1" />
+                    <Button onClick={async () => {
+                      setBossLoading(true);
+                      try {
+                        await api.adminLogin(bossPwd);
+                        setNeedBossAuth(false);
+                        setBossPwd('');
+                        await loadData(1, searchTerm);
+                        await loadInvitesSafe();
+                        toast.success(locale === 'fr' ? 'Connecté' : 'Authenticated');
+                      } catch (e: any) {
+                        toast.error(e?.message || 'Login failed');
+                      } finally {
+                        setBossLoading(false);
+                      }
+                    }} loading={bossLoading} disabled={!bossPwd.trim()}>
+                      {locale === 'fr' ? 'Se connecter' : 'Sign in'}
+                    </Button>
+                  </div>
+                </Card>
+              )}
               {/* Header */}
               <div className="flex items-center justify-between">
                 <div>
