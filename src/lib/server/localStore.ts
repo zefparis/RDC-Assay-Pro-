@@ -259,3 +259,9 @@ export function deleteSampleLocal(code: string): boolean {
   if (!s) return false;
   return STORE.samples.delete(s.id);
 }
+
+export function listSamplesByClient(email: string): LocalSample[] {
+  const e = String(email || '').trim().toLowerCase();
+  const all = Array.from(STORE.samples.values());
+  return all.filter((s) => (s.clientEmail || '').toLowerCase() === e);
+}

@@ -1,5 +1,18 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { updateStatusLocal, deleteSampleLocal, findByCode, setSampleClientEmailLocal } from '@/lib/server/localStore';
+import { verifyBossToken, readBearer, isBossAuthDisabled } from '@/lib/server/bossAuth';
+
+function requireBoss(req: NextApiRequest, res: NextApiResponse): boolean {
+  if (isBossAuthDisabled()) return true;
+  const cookie = req.headers.cookie || '';
+  const m = /(?:^|; )bossToken=([^;]+)/.exec(cookie);
+  const token = (m && m[1]) || readBearer(req);
+  if (!verifyBossToken(token)) {
+    res.status(401).json({ error: 'Unauthorized' });
+    return false;
+  }
+  return true;
+}
 
 function toBackendStatusToken(local: string): string {
   switch (local) {
@@ -53,6 +66,7 @@ function shape(sample: ReturnType<typeof findByCode>) {
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (!requireBoss(req, res)) return;
   const { code } = req.query as { code: string };
 
   try {

@@ -16,6 +16,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const isProd = process.env.NODE_ENV === 'production';
     const ttl = 7 * 24 * 60 * 60; // 7 days
     res.setHeader('Set-Cookie', `clientToken=${token}; HttpOnly; Path=/; SameSite=Lax; Max-Age=${ttl}; ${isProd ? 'Secure; ' : ''}`);
+    if (req.method === 'GET') {
+      // Redirect browser to home after redeem
+      res.redirect(302, '/');
+      return;
+    }
     return res.status(200).json({ success: true, data: { email: inv.email } });
   } catch (e: any) {
     return res.status(500).json({ error: e?.message || 'Server error' });
