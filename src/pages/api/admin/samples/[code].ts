@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { updateStatusLocal, deleteSampleLocal, findByCode } from '@/lib/server/localStore';
+import { updateStatusLocal, deleteSampleLocal, findByCode, setSampleClientEmailLocal } from '@/lib/server/localStore';
 
 function toBackendStatusToken(local: string): string {
   switch (local) {
@@ -39,6 +39,7 @@ function shape(sample: ReturnType<typeof findByCode>) {
     sampleCode: sample.shortCode,
     mineral: 'CU',
     site: sample.site,
+    clientEmail: sample.clientEmail,
     status: toBackendStatusToken(sample.status),
     grade: null,
     unit: 'PERCENT',
@@ -56,10 +57,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     if (req.method === 'PATCH') {
-      const body = (req.body || {}) as { status?: string; notes?: string };
-      const nextLocal = body.status ? fromBackendToken(body.status) : undefined;
-      if (!nextLocal) return res.status(400).json({ error: 'Missing or invalid status' });
-      const updated = updateStatusLocal(code, nextLocal, body.notes);
+      const body = (req.body || {}) as { status?: string; notes?: string; clientEmail?: string };
+      let updated = undefined as ReturnType<typeof findByCode> | undefined;
+      if (body.clientEmail) {
+        updated = setSampleClientEmailLocal(code, body.clientEmail) || updated;
+      }
+      if (body.status) {
+        const nextLocal = fromBackendToken(body.status);
+        if (!nextLocal) return res.status(400).json({ error: 'Missing or invalid status' });
+        updated = updateStatusLocal(code, nextLocal, body.notes) || updated;
+      }
+      if (!updated) return res.status(400).json({ error: 'No updates applied' });
       if (!updated) return res.status(404).json({ error: 'Not found' });
       return res.status(200).json({ success: true, data: { sample: shape(updated) } });
     }

@@ -507,6 +507,7 @@ export const api = {
         id: sample.sampleCode,
         mineral: mapMineral(sample.mineral),
         site: sample.site,
+        clientEmail: sample.clientEmail,
         status: mapStatus(sample.status),
         grade: sample.grade,
         unit: mapUnit(sample.unit),
@@ -514,14 +515,113 @@ export const api = {
         createdAt: sample.receivedAt?.split('T')[0],
         mass: sample.mass,
         notes: sample.notes,
-        qrCode: sample.qrCode,
-        reportUrl: sample.report?.reportCode ? `${BASE_URL}/reports/${sample.report.reportCode}.pdf` : undefined,
+        timeline: sample.timeline?.map((event: any) => ({
+          label: mapStatus(event.status),
+          done: true,
+          when: event.timestamp?.split('T')[0]
+        }))
       })),
       total: response.pagination.total,
       page: response.pagination.page,
       limit: response.pagination.limit,
       totalPages: response.pagination.totalPages,
     };
+  },
+
+  async adminSetClientEmail(code: string, email: string): Promise<Sample> {
+    const res = await fetch(`/api/admin/samples/${encodeURIComponent(code)}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ clientEmail: email }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || `HTTP ${res.status}`);
+    }
+    const response = await res.json();
+    const sample = response.data.sample;
+    const mapped: Sample = {
+      id: sample.sampleCode,
+      mineral: mapMineral(sample.mineral),
+      site: sample.site,
+      clientEmail: sample.clientEmail,
+      status: mapStatus(sample.status),
+      grade: sample.grade,
+      unit: mapUnit(sample.unit),
+      updatedAt: sample.updatedAt?.split('T')[0] || sample.receivedAt?.split('T')[0],
+      createdAt: sample.receivedAt?.split('T')[0],
+      mass: sample.mass,
+      notes: sample.notes,
+      qrCode: sample.qrCode,
+      reportUrl: sample.report?.reportCode ? `${BASE_URL}/reports/${sample.report.reportCode}.pdf` : undefined,
+    };
+    cacheUpsert(mapped);
+    return mapped;
+  },
+
+  async adminNotifySample(code: string, channel: 'email' | 'sms' = 'email', contact?: string): Promise<{ at: string }> {
+    const res = await fetch(`/api/admin/samples/${encodeURIComponent(code)}/notify`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ channel, contact }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || `HTTP ${res.status}`);
+    }
+    const data = await res.json();
+    return { at: data.data.at };
+  },
+
+  async adminListInvites(): Promise<Array<{ email: string; code: string; status: string; createdAt: string; expiresAt: string }>> {
+    const res = await fetch('/api/admin/invites', { credentials: 'include' });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || `HTTP ${res.status}`);
+    }
+    const json = await res.json();
+    return json.data;
+  },
+
+  async adminCreateInvite(email: string, ttlMinutes = 60, send = false): Promise<{ email: string; code: string; status: string; createdAt: string; expiresAt: string; link: string }> {
+    const res = await fetch('/api/admin/invites', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ email, ttlMinutes, send }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || `HTTP ${res.status}`);
+    }
+    const json = await res.json();
+    return { ...json.data, link: json.link };
+  },
+
+  async adminSendInvite(code: string): Promise<void> {
+    const res = await fetch(`/api/admin/invites/${encodeURIComponent(code)}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ action: 'send' }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || `HTTP ${res.status}`);
+    }
+  },
+
+  async adminRevokeInvite(code: string): Promise<void> {
+    const res = await fetch(`/api/admin/invites/${encodeURIComponent(code)}`, {
+      method: 'DELETE',
+      credentials: 'include',
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || `HTTP ${res.status}`);
+    }
   },
 
   async adminUpdateSampleStatus(code: string, nextStatus: SampleStatus, notes?: string): Promise<Sample> {

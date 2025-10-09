@@ -34,6 +34,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     sampleCode: s.shortCode,
     mineral: 'CU',
     site: s.site,
+    clientEmail: s.clientEmail,
     status: toBackendStatusToken(s.status),
     grade: null,
     unit: 'PERCENT',

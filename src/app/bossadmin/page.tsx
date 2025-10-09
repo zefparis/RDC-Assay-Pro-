@@ -51,6 +51,12 @@ export default function BossAdminPage() {
   const [grade, setGrade] = useState<string>('');
   const [unit, setUnit] = useState<Unit | ''>('');
 
+  // Client access / invites state
+  const [invites, setInvites] = useState<Array<{ email: string; code: string; status: string; createdAt: string; expiresAt: string }>>([]);
+  const [invEmail, setInvEmail] = useState('');
+  const [invTtl, setInvTtl] = useState(60);
+  const [invLoading, setInvLoading] = useState(false);
+
   // Status options (include pre-lab; fallback labels for new ones)
   const statusOptions = useMemo(() => ([
     { value: 'Booked', label: locale === 'fr' ? 'Pré‑enregistré' : 'Booked' },
@@ -75,6 +81,7 @@ export default function BossAdminPage() {
   // Load data on mount
   useEffect(() => {
     void loadData(1, '');
+    void loadInvitesSafe();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -90,6 +97,13 @@ export default function BossAdminPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const loadInvitesSafe = async () => {
+    try {
+      const list = await api.adminListInvites();
+      setInvites(list);
+    } catch {}
   };
 
   const openEdit = (s: Sample) => {
@@ -226,8 +240,14 @@ export default function BossAdminPage() {
                               <Button variant="outline" size="sm" icon={<Edit3 className="w-4 h-4" />} onClick={() => openEdit(s)}>
                                 {t.bossadmin?.actions.edit || 'Edit'}
                               </Button>
+                              <Button variant="outline" size="sm" onClick={() => setClient(s)}>
+                                {locale === 'fr' ? 'Client' : 'Client'}
+                              </Button>
                               <Button variant="secondary" size="sm" icon={<Upload className="w-4 h-4" />} onClick={() => setUploading(s)}>
                                 {t.bossadmin?.actions.uploadReport || 'Upload report'}
+                              </Button>
+                              <Button variant="secondary" size="sm" onClick={() => notifyClient(s)} disabled={!s.clientEmail && s.status !== 'Reported'}>
+                                {locale === 'fr' ? 'Notifier' : 'Notify'}
                               </Button>
                               <Button variant="danger" size="sm" icon={<Trash2 className="w-4 h-4" />} onClick={() => doDelete(s)}>
                                 {t.bossadmin?.actions.delete || 'Delete'}
@@ -285,6 +305,77 @@ export default function BossAdminPage() {
                   </div>
                 )}
               </AnimatePresence>
+
+              {/* Client Access / Invites */}
+              <Card padding="lg" className="shadow-strong">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <div className="text-lg font-bold">{locale === 'fr' ? 'Accès client' : 'Client Access'}</div>
+                    <div className="text-sm text-secondary-600">{locale === 'fr' ? "Invitations par email (code magique)" : 'Email invites (magic code)'}</div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Input placeholder={locale === 'fr' ? 'Email client' : 'Client email'} value={invEmail} onChange={(e) => setInvEmail(e.target.value)} />
+                    <Input placeholder="TTL (min)" type="number" value={invTtl} onChange={(e) => setInvTtl(Number(e.target.value || 60))} className="w-24" />
+                    <Button onClick={async () => {
+                      if (!invEmail.trim()) return;
+                      setInvLoading(true);
+                      try {
+                        const inv = await api.adminCreateInvite(invEmail.trim(), invTtl, true);
+                        await navigator.clipboard?.writeText(`${window.location.origin}/api/auth/client-redeem?code=${inv.code}`);
+                        toast.success(locale === 'fr' ? 'Invitation créée et copiée' : 'Invite created & link copied');
+                        setInvEmail('');
+                        await loadInvitesSafe();
+                      } catch (e: any) {
+                        toast.error(e?.message || 'Failed');
+                      } finally {
+                        setInvLoading(false);
+                      }
+                    }} loading={invLoading}>{locale === 'fr' ? 'Inviter' : 'Invite'}</Button>
+                  </div>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full text-sm">
+                    <thead>
+                      <tr className="text-left text-secondary-500">
+                        <th className="py-2 pr-4">Email</th>
+                        <th className="py-2 pr-4">Code</th>
+                        <th className="py-2 pr-4">Statut</th>
+                        <th className="py-2 pr-4">Créé</th>
+                        <th className="py-2 pr-4">Expire</th>
+                        <th className="py-2 pr-4">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {invites.map((inv) => (
+                        <tr key={inv.code} className="border-t border-secondary-200">
+                          <td className="py-2 pr-4">{inv.email}</td>
+                          <td className="py-2 pr-4 font-mono">{inv.code}</td>
+                          <td className="py-2 pr-4">{inv.status}</td>
+                          <td className="py-2 pr-4">{new Date(inv.createdAt).toLocaleString()}</td>
+                          <td className="py-2 pr-4">{new Date(inv.expiresAt).toLocaleString()}</td>
+                          <td className="py-2 pr-4">
+                            <div className="flex gap-2">
+                              <Button variant="outline" size="sm" onClick={async () => {
+                                try {
+                                  await navigator.clipboard?.writeText(`${window.location.origin}/api/auth/client-redeem?code=${inv.code}`);
+                                  toast.success(locale === 'fr' ? 'Lien copié' : 'Link copied');
+                                } catch {}
+                              }}>{locale === 'fr' ? 'Copier' : 'Copy'}</Button>
+                              <Button variant="outline" size="sm" onClick={async () => { try { await api.adminSendInvite(inv.code); toast.success('Sent'); await loadInvitesSafe(); } catch (e: any) { toast.error(e?.message || 'Failed'); } }}>{locale === 'fr' ? 'Envoyer' : 'Send'}</Button>
+                              <Button variant="danger" size="sm" onClick={async () => { if (!window.confirm(locale === 'fr' ? 'Révoquer ?' : 'Revoke?')) return; try { await api.adminRevokeInvite(inv.code); toast.success('Revoked'); await loadInvitesSafe(); } catch (e: any) { toast.error(e?.message || 'Failed'); } }}>{locale === 'fr' ? 'Révoquer' : 'Revoke'}</Button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                      {invites.length === 0 && (
+                        <tr>
+                          <td className="py-6 text-center text-secondary-500" colSpan={6}>{locale === 'fr' ? 'Aucune invitation' : 'No invites'}</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </Card>
 
               {/* Upload modal */}
               <AnimatePresence>

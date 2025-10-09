@@ -26,6 +26,7 @@ export interface Sample {
   mass?: number;
   notes?: string;
   clientId?: string;
+  clientEmail?: string;
   timeline?: TimelineEvent[];
   qrCode?: string;
   reportUrl?: string;

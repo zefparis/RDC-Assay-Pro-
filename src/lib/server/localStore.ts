@@ -20,6 +20,57 @@ export interface LocalTimelineEvent {
   notes?: string;
 }
 
+// ===== Invites helpers =====
+function randomCode(len = 6): string {
+  let s = '';
+  for (let i = 0; i < len; i++) s += Math.floor(Math.random() * 10);
+  return s;
+}
+
+export function createInvite(email: string, ttlMinutes = 60): LocalInvite {
+  const code = randomCode(6);
+  const now = new Date();
+  const invite: LocalInvite = {
+    email: String(email || '').trim().toLowerCase(),
+    code,
+    createdAt: nowISO(),
+    expiresAt: new Date(now.getTime() + ttlMinutes * 60 * 1000).toISOString(),
+    status: 'Pending',
+  };
+  STORE.invites.set(code, invite);
+  return invite;
+}
+
+export function listInvites(): LocalInvite[] {
+  return Array.from(STORE.invites.values()).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+}
+
+export function revokeInvite(code: string): boolean {
+  const it = STORE.invites.get(code);
+  if (!it) return false;
+  it.status = 'Revoked';
+  it.revokedAt = nowISO();
+  return true;
+}
+
+export function redeemInvite(code: string): LocalInvite | null {
+  const it = STORE.invites.get(code);
+  if (!it) return null;
+  if (it.status === 'Revoked') return null;
+  if (new Date(it.expiresAt).getTime() < Date.now()) return null;
+  it.status = 'Redeemed';
+  it.redeemedAt = nowISO();
+  return it;
+}
+
+export function markInviteSent(code: string): LocalInvite | null {
+  const it = STORE.invites.get(code);
+  if (!it) return null;
+  if (it.status === 'Revoked') return null;
+  it.status = 'Sent';
+  return it;
+}
+
 export function createSubmittedSample(input: {
   site: string;
   mineral?: string;
@@ -64,6 +115,7 @@ export interface LocalSample {
   shortCode: string; // 7 digits
   checkDigit: number;
   site: string;
+  clientEmail?: string;
   mineral?: string;
   unit?: string;
   mass?: number;
@@ -75,11 +127,25 @@ export interface LocalSample {
   reportUrl?: string;
   technician?: string;
   estimatedCompletion?: string;
+  lastNotificationAt?: string;
+}
+
+// Client invite types
+export type LocalInviteStatus = 'Pending' | 'Sent' | 'Redeemed' | 'Revoked';
+export interface LocalInvite {
+  email: string;
+  code: string; // magic code
+  createdAt: string;
+  expiresAt: string;
+  redeemedAt?: string;
+  revokedAt?: string;
+  status: LocalInviteStatus;
 }
 
 // In-memory store (non-persistent). For production, replace by a DB.
-const STORE: { samples: Map<string, LocalSample> } = {
+const STORE: { samples: Map<string, LocalSample>; invites: Map<string, LocalInvite> } = {
   samples: new Map(),
+  invites: new Map(), // key by code
 };
 
 function nowISO(): string {
@@ -157,6 +223,15 @@ export function updateStatusLocal(code: string, next: LocalStatus, notes?: strin
   return s;
 }
 
+export function setSampleClientEmailLocal(code: string, email: string): LocalSample | undefined {
+  const s = findByCode(code);
+  if (!s) return undefined;
+  s.clientEmail = String(email || '').trim().toLowerCase();
+  s.updatedAt = nowISO();
+  s.timeline.push({ type: s.status, at: s.updatedAt, notes: `Client set: ${s.clientEmail}` });
+  return s;
+}
+
 export function uploadReportLocal(code: string, url: string, meta?: { technician?: string; grade?: number; unit?: string }) {
   const s = findByCode(code);
   if (!s) return undefined;
@@ -165,6 +240,17 @@ export function uploadReportLocal(code: string, url: string, meta?: { technician
   s.updatedAt = nowISO();
   s.timeline.push({ type: 'Reported', at: s.updatedAt, notes: 'Report uploaded' });
   if (meta?.technician) s.technician = meta.technician;
+  return s;
+}
+
+export function notifyClientLocal(code: string, channel: 'email' | 'sms' = 'email', contact?: string) {
+  const s = findByCode(code);
+  if (!s) return undefined;
+  const now = nowISO();
+  s.lastNotificationAt = now;
+  s.updatedAt = now;
+  const note = `Client notified via ${channel}${contact ? ' to ' + contact : ''}`;
+  s.timeline.push({ type: s.status, at: now, notes: note });
   return s;
 }
 
