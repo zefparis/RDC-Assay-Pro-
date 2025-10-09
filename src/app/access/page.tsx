@@ -9,7 +9,7 @@ import { useSearchParams } from 'next/navigation';
 
 export default function AccessRequestPage() {
   const params = useSearchParams();
-  const initialEmail = useMemo(() => params.get('email') || '', [params]);
+  const initialEmail = useMemo(() => (params?.get('email') ?? ''), [params]);
   const [email, setEmail] = useState(initialEmail);
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);

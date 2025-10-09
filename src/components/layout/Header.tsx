@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { LogIn, LogOut, Menu, X, Globe, User } from 'lucide-react';
@@ -15,6 +15,7 @@ const Header: React.FC<HeaderProps> = ({ onLoginClick }) => {
   const { t, locale, changeLocale } = useTranslation();
   const { isAuthenticated, user, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [hasClientToken, setHasClientToken] = useState(false);
 
   const navItems = [
     { key: 'services', href: '/#services', label: t.nav.services },
@@ -27,6 +28,12 @@ const Header: React.FC<HeaderProps> = ({ onLoginClick }) => {
   const toggleLocale = () => {
     changeLocale(locale === 'fr' ? 'en' : 'fr');
   };
+
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      setHasClientToken(/(?:^|; )clientToken=/.test(document.cookie));
+    }
+  }, []);
 
   return (
     <header className="sticky top-0 z-50 backdrop-blur-md bg-white/80 border-b border-secondary-200 shadow-soft">
@@ -68,6 +75,11 @@ const Header: React.FC<HeaderProps> = ({ onLoginClick }) => {
                 </a>
               )
             ))}
+            {hasClientToken && (
+              <Link href="/client" className="text-secondary-600 hover:text-primary-600 font-medium transition-colors duration-200">
+                Client
+              </Link>
+            )}
           </nav>
 
           {/* Actions */}
@@ -151,6 +163,15 @@ const Header: React.FC<HeaderProps> = ({ onLoginClick }) => {
                   </a>
                 )
               ))}
+              {hasClientToken && (
+                <Link
+                  href="/client"
+                  className="text-secondary-600 hover:text-primary-600 font-medium py-2 transition-colors duration-200"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Client
+                </Link>
+              )}
               <div className="flex items-center gap-2 pt-2 border-t border-secondary-200">
                 <Button
                   variant="ghost"

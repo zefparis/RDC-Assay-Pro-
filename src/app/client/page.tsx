@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Badge from '@/components/ui/Badge';
@@ -22,6 +22,8 @@ interface ClientSampleItem {
 
 export default function ClientPortalPage() {
   const API_BASE = useMemo(() => process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1', []);
+  const REPORT_BASE = useMemo(() => process.env.NEXT_PUBLIC_REPORT_BASE_URL || API_BASE, [API_BASE]);
+  const reportUrl = useCallback((code: string) => `${String(REPORT_BASE).replace(/\/$/, '')}/${code}.pdf`, [REPORT_BASE]);
   const [loading, setLoading] = useState(true);
   const [authorized, setAuthorized] = useState<boolean | null>(null);
   const [items, setItems] = useState<ClientSampleItem[]>([]);
@@ -115,7 +117,7 @@ export default function ClientPortalPage() {
                   <div className="flex items-center gap-3">
                     {it.report?.reportCode ? (
                       <a
-                        href={`${API_BASE}/reports/${it.report.reportCode}.pdf`}
+                        href={reportUrl(it.report.reportCode)}
                         target="_blank"
                         rel="noreferrer"
                         className="text-primary-600 hover:text-primary-700 text-sm"
