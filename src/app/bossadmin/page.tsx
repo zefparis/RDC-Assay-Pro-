@@ -135,6 +135,29 @@ export default function BossAdminPage() {
     }
   };
 
+  const setClient = async (s: Sample) => {
+    const email = window.prompt(locale === 'fr' ? 'Email client' : 'Client email', s.clientEmail || '')?.trim();
+    if (!email) return;
+    try {
+      const updated = await api.adminSetClientEmail(s.id, email);
+      setItems(prev => prev.map(it => it.id === updated.id ? updated : it));
+      toast.success(locale === 'fr' ? 'Client défini' : 'Client set');
+    } catch (e: any) {
+      toast.error(e?.message || 'Failed');
+    }
+  };
+
+  const notifyClient = async (s: Sample) => {
+    const email = s.clientEmail || window.prompt(locale === 'fr' ? 'Envoyer à (email)' : 'Send to (email)')?.trim();
+    if (!email) return;
+    try {
+      const r = await api.adminNotifySample(s.id, 'email', email);
+      toast.success((locale === 'fr' ? 'Notification envoyée à ' : 'Notification sent to ') + email);
+    } catch (e: any) {
+      toast.error(e?.message || 'Failed');
+    }
+  };
+
   const saveUpload = async () => {
     if (!uploading || !uploadFile) return;
     try {
