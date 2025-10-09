@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Search, ChevronRight, QrCode, CheckCircle2, Clock, AlertCircle } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { api } from '@/lib/api';
-import { normalizeTrackingInput, looksLikeNumericCode, formatShortCodeDisplay } from '@/lib/code';
+import { looksLikeNumericCode, formatShortCodeDisplay } from '@/lib/code';
 import { Sample } from '@/types';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
@@ -28,14 +28,7 @@ const SampleTracker: React.FC = () => {
     try {
       setError('');
       setLoading(true);
-      // Normalize numeric code input (7-digit short code with optional check digit)
-      const norm = normalizeTrackingInput(query);
-      if (norm.error) {
-        setError(norm.error);
-        setSamples([]);
-        return;
-      }
-      const response = await api.searchSamples(norm.search);
+      const response = await api.searchSamples(query.trim());
       setSamples(response.data);
     } catch (err: any) {
       if (err.message?.includes('Access token required') || err.message?.includes('401')) {

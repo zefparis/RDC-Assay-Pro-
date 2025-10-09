@@ -1,4 +1,5 @@
 import { Sample, SampleSubmission, Report, DashboardStats, ApiResponse, PaginatedResponse, MineralType, SampleStatus, Unit } from '@/types';
+import { upsertSample as cacheUpsert, removeSample as cacheRemove, search as cacheSearch, getSample as cacheGet } from '@/lib/clientCache';
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
 
@@ -127,20 +128,40 @@ const mapUnitToBackend = (frontendUnit: string): string => {
 export const api = {
   // Sample management
   async searchSamples(query: string = '', page: number = 1, limit: number = 10): Promise<PaginatedResponse<Sample>> {
-    // Use Next API (local store) so we see our freshly created samples and sites
     const params = new URLSearchParams({
       page: page.toString(),
       limit: limit.toString(),
       ...(query && { search: query })
     });
-    const res = await fetch(`/api/admin/samples?${params.toString()}`, { credentials: 'include' });
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.error || `HTTP ${res.status}`);
-    }
-    const response = await res.json();
-    return {
-      data: response.data.map((sample: any) => ({
+    // 1) Try local Next API (in-memory)
+    let serverData: Sample[] = [];
+    try {
+      const res = await fetch(`/api/admin/samples?${params.toString()}`, { credentials: 'include' });
+      if (res.ok) {
+        const response = await res.json();
+        serverData = response.data.map((sample: any) => ({
+          id: sample.sampleCode,
+          mineral: mapMineral(sample.mineral),
+          site: sample.site,
+          status: mapStatus(sample.status),
+          grade: sample.grade,
+          unit: mapUnit(sample.unit),
+          updatedAt: sample.updatedAt?.split('T')[0] || sample.receivedAt?.split('T')[0],
+          createdAt: sample.receivedAt?.split('T')[0],
+          mass: sample.mass,
+          notes: sample.notes,
+          timeline: sample.timeline?.map((event: any) => ({
+            label: mapStatus(event.status),
+            done: true,
+            when: event.timestamp?.split('T')[0]
+          }))
+        }));
+      }
+    } catch {}
+    // 2) Try remote backend and merge
+    try {
+      const remote = await apiRequest(`/samples?${params}`);
+      const remoteList: Sample[] = remote.data.map((sample: any) => ({
         id: sample.sampleCode,
         mineral: mapMineral(sample.mineral),
         site: sample.site,
@@ -156,42 +177,82 @@ export const api = {
           done: true,
           when: event.timestamp?.split('T')[0]
         }))
-      })),
-      total: response.pagination.total,
-      page: response.pagination.page,
-      limit: response.pagination.limit,
-      totalPages: response.pagination.totalPages,
+      }));
+      serverData = [...serverData, ...remoteList];
+    } catch {}
+    // Merge with client cache to avoid serverless memory gaps
+    const cached = cacheSearch(query);
+    const mapById = new Map<string, Sample>();
+    [...serverData, ...cached].forEach(s => mapById.set(s.id, s));
+    const merged = Array.from(mapById.values());
+    return {
+      data: merged,
+      total: merged.length,
+      page,
+      limit,
+      totalPages: Math.max(1, Math.ceil(merged.length / limit)),
     };
   },
 
   async getSample(id: string): Promise<Sample> {
-    // Use Next tracking endpoint backed by local store
-    const res = await fetch(`/api/tracking/${encodeURIComponent(id)}`, { credentials: 'include' });
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.error || `HTTP ${res.status}`);
-    }
-    const response = await res.json();
-    const sample = response.data.sample;
-    return {
-      id: sample.sampleCode,
-      mineral: mapMineral(sample.mineral),
-      site: sample.site,
-      status: mapStatus(sample.status),
-      grade: sample.grade,
-      unit: mapUnit(sample.unit),
-      updatedAt: sample.updatedAt?.split('T')[0] || sample.receivedAt?.split('T')[0],
-      createdAt: sample.receivedAt?.split('T')[0],
-      mass: sample.mass,
-      notes: sample.notes,
-      qrCode: sample.qrCode,
-      timeline: sample.timeline?.map((event: any) => ({
-        label: mapStatus(event.status),
-        done: true,
-        when: event.timestamp?.split('T')[0],
-        notes: event.notes
-      })) || []
-    };
+    // Prefer Next tracking endpoint; fallback to client cache
+    try {
+      const res = await fetch(`/api/tracking/${encodeURIComponent(id)}`, { credentials: 'include' });
+      if (res.ok) {
+        const response = await res.json();
+        const sample = response.data.sample;
+        const mapped: Sample = {
+          id: sample.sampleCode,
+          mineral: mapMineral(sample.mineral),
+          site: sample.site,
+          status: mapStatus(sample.status),
+          grade: sample.grade,
+          unit: mapUnit(sample.unit),
+          updatedAt: sample.updatedAt?.split('T')[0] || sample.receivedAt?.split('T')[0],
+          createdAt: sample.receivedAt?.split('T')[0],
+          mass: sample.mass,
+          notes: sample.notes,
+          qrCode: sample.qrCode,
+          timeline: sample.timeline?.map((event: any) => ({
+            label: mapStatus(event.status),
+            done: true,
+            when: event.timestamp?.split('T')[0],
+            notes: event.notes
+          })) || []
+        };
+        cacheUpsert(mapped);
+        return mapped;
+      }
+    } catch {}
+    // Remote fallback
+    try {
+      const response = await apiRequest(`/samples/code/${id}`);
+      const sample = response.data.sample;
+      const mapped: Sample = {
+        id: sample.sampleCode,
+        mineral: mapMineral(sample.mineral),
+        site: sample.site,
+        status: mapStatus(sample.status),
+        grade: sample.grade,
+        unit: mapUnit(sample.unit),
+        updatedAt: sample.updatedAt?.split('T')[0] || sample.receivedAt?.split('T')[0],
+        createdAt: sample.receivedAt?.split('T')[0],
+        mass: sample.mass,
+        notes: sample.notes,
+        qrCode: sample.qrCode,
+        timeline: sample.timeline?.map((event: any) => ({
+          label: mapStatus(event.status),
+          done: true,
+          when: event.timestamp?.split('T')[0],
+          notes: event.notes
+        })) || []
+      };
+      cacheUpsert(mapped);
+      return mapped;
+    } catch {}
+    const cached = cacheGet(id);
+    if (cached) return cached;
+    throw new Error('Not found');
   },
 
   async createSample(payload: SampleSubmission): Promise<Sample> {
@@ -214,7 +275,7 @@ export const api = {
     }
     const response = await res.json();
     const sample = response.data.sample;
-    return {
+    const mapped: Sample = {
       id: sample.sampleCode,
       mineral: mapMineral(sample.mineral),
       site: sample.site,
@@ -226,6 +287,8 @@ export const api = {
       mass: sample.mass,
       notes: sample.notes
     };
+    cacheUpsert(mapped);
+    return mapped;
   },
 
   async updateSample(id: string, updates: Partial<Sample>): Promise<Sample> {
@@ -265,33 +328,50 @@ export const api = {
 
   // Reports management
   async getReports(filter: { mineral?: MineralType; site?: string; page?: number; limit?: number } = {}): Promise<PaginatedResponse<Report>> {
-    const params = new URLSearchParams({
-      page: (filter.page || 1).toString(),
-      limit: (filter.limit || 10).toString(),
-      ...(filter.mineral && { mineral: mapMineralToBackend(filter.mineral) }),
-      ...(filter.site && { site: filter.site })
-    });
-    
-    const response = await apiRequest(`/reports?${params}`);
-    
-    return {
-      data: response.data.map((report: any) => ({
-        id: report.reportCode,
-        mineral: mapMineral(report.sample.mineral),
-        site: report.sample.site,
-        grade: report.grade,
-        unit: mapUnit(report.unit),
-        url: `${BASE_URL}/reports/${report.reportCode}.pdf`,
-        issuedAt: report.issuedAt?.split('T')[0],
-        hash: report.hash,
-        certified: report.certified,
-        qrCode: report.qrCode
-      })),
-      total: response.pagination.total,
-      page: response.pagination.page,
-      limit: response.pagination.limit,
-      totalPages: response.pagination.totalPages,
-    };
+    // 1) Remote reports (if available)
+    try {
+      const params = new URLSearchParams({
+        page: (filter.page || 1).toString(),
+        limit: (filter.limit || 10).toString(),
+        ...(filter.mineral && { mineral: mapMineralToBackend(filter.mineral) }),
+        ...(filter.site && { site: filter.site })
+      });
+      const response = await apiRequest(`/reports?${params}`);
+      return {
+        data: response.data.map((report: any) => ({
+          id: report.reportCode,
+          mineral: mapMineral(report.sample.mineral),
+          site: report.sample.site,
+          grade: report.grade,
+          unit: mapUnit(report.unit),
+          url: `${BASE_URL}/reports/${report.reportCode}.pdf`,
+          issuedAt: report.issuedAt?.split('T')[0],
+          hash: report.hash,
+          certified: report.certified,
+          qrCode: report.qrCode
+        })),
+        total: response.pagination.total,
+        page: response.pagination.page,
+        limit: response.pagination.limit,
+        totalPages: response.pagination.totalPages,
+      };
+    } catch {}
+    // 2) Fallback: build from client cache (reported samples with reportUrl)
+    const all = cacheSearch('');
+    const reported = all.filter(s => s.status === 'Reported' && !!s.reportUrl);
+    const mapped = reported.map<Report>((s) => ({
+      id: s.id,
+      mineral: s.mineral,
+      site: s.site,
+      grade: s.grade as any,
+      unit: s.unit as any,
+      url: s.reportUrl!,
+      issuedAt: s.updatedAt,
+      hash: 'local-dev',
+      certified: false,
+      qrCode: s.qrCode,
+    }));
+    return { data: mapped, total: mapped.length, page: 1, limit: mapped.length || 10, totalPages: 1 };
   },
 
   async getReport(id: string): Promise<Report> {
@@ -457,7 +537,7 @@ export const api = {
     }
     const response = await res.json();
     const sample = response.data.sample;
-    return {
+    const mapped: Sample = {
       id: sample.sampleCode,
       mineral: mapMineral(sample.mineral),
       site: sample.site,
@@ -471,6 +551,8 @@ export const api = {
       qrCode: sample.qrCode,
       reportUrl: sample.report?.reportCode ? `${BASE_URL}/reports/${sample.report.reportCode}.pdf` : undefined,
     };
+    cacheUpsert(mapped);
+    return mapped;
   },
 
   async adminUploadReport(code: string, file: File, payload: { grade?: number; unit?: Unit } = {}): Promise<Sample> {
@@ -489,7 +571,7 @@ export const api = {
     }
     const data = await res.json();
     const sample = data.data.sample || data.data;
-    return {
+    const mapped: Sample = {
       id: sample.sampleCode,
       mineral: mapMineral(sample.mineral),
       site: sample.site,
@@ -503,6 +585,8 @@ export const api = {
       qrCode: sample.qrCode,
       reportUrl: sample.report?.reportCode ? `${BASE_URL}/reports/${sample.report.reportCode}.pdf` : undefined,
     };
+    cacheUpsert(mapped);
+    return mapped;
   },
 
   async adminDeleteSample(code: string): Promise<void> {
@@ -514,5 +598,6 @@ export const api = {
       const err = await res.json().catch(() => ({}));
       throw new Error(err.error || `HTTP ${res.status}`);
     }
+    cacheRemove(code);
   },
 };

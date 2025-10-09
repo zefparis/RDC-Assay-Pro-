@@ -6,6 +6,7 @@ import Card from '@/components/ui/Card';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 import { formatShortCodeDisplay } from '@/lib/code';
+import { upsertSample, fromPreRegister } from '@/lib/clientCache';
 
 const Services: React.FC = () => {
   const { t } = useTranslation();
@@ -158,6 +159,9 @@ const Services: React.FC = () => {
                     }
                     const data = await res.json();
                     setResult(data.data);
+                    try {
+                      upsertSample(fromPreRegister({ shortCode: data.data.shortCode, site }));
+                    } catch {}
                   } catch (e: any) {
                     setError(t.services?.preregister?.error || 'Échec du pré‑enregistrement');
                   } finally {

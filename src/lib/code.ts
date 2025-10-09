@@ -36,23 +36,26 @@ export function formatShortCodeDisplay(num: string): string {
 
 export function normalizeTrackingInput(raw: string): { search: string; error?: string } {
   const input = String(raw || '').trim();
-  // Accept site names or full codes without touching them
-  // Only special-handle patterns that look like numeric codes
-  const m = /^(\d+)(?:-(\d))?$/.exec(input);
-  if (!m) {
-    // Not a pure numeric code → return as-is for generic search
-    return { search: input };
-  }
-  const digits = m[1];
-  const providedCheck = m[2];
-  // Strict validation only when it's a 7-digit short code and a check digit is provided
-  if (providedCheck != null && digits.length === 7) {
-    const expected = computeLuhnDigit(digits);
-    if (Number(providedCheck) !== expected) {
-      return { search: digits, error: 'Code invalide (contrôle). Vérifiez le chiffre de contrôle.' };
+  // If the input contains meaningful digits, search by digits; else use raw (site)
+  const digitsOnly = onlyDigits(input);
+  // Check for explicit check digit pattern anywhere like NNNNNNN-D
+  const m = /(\d{7})(?:-(\d))?/.exec(input);
+  if (m) {
+    const core = m[1];
+    const provided = m[2];
+    if (provided != null) {
+      const expected = computeLuhnDigit(core);
+      if (Number(provided) !== expected) {
+        return { search: core, error: 'Code invalide (contrôle). Vérifiez le chiffre de contrôle.' };
+      }
     }
+    return { search: core };
   }
-  return { search: digits };
+  // Fallback: if we have at least 5 digits, treat as a code fragment search; otherwise treat as site
+  if (digitsOnly.length >= 5) {
+    return { search: digitsOnly };
+  }
+  return { search: input };
 }
 
 export function looksLikeNumericCode(raw: string): boolean {
