@@ -7,6 +7,7 @@ import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 import { formatShortCodeDisplay } from '@/lib/code';
 import { upsertSample, fromPreRegister } from '@/lib/clientCache';
+import Image from 'next/image';
 
 const Services: React.FC = () => {
   const { t } = useTranslation();
@@ -22,24 +23,27 @@ const Services: React.FC = () => {
       title: t.services.sampling.title,
       description: t.services.sampling.description,
       features: ['Grab sampling', 'Channel sampling', 'Core drilling', 'Chain of custody'],
-      color: 'text-primary-600',
+      color: 'text-primary-700',
       bgColor: 'bg-primary-50',
+      image: '/image/lab1.jpg',
     },
     {
       icon: FlaskConical,
       title: t.services.analysis.title,
       description: t.services.analysis.description,
       features: ['XRF Analysis', 'ICP-OES/MS', 'Fire Assay', 'Moisture & LOI'],
-      color: 'text-warning-600',
-      bgColor: 'bg-warning-50',
+      color: 'text-accent-700',
+      bgColor: 'bg-accent-50',
+      image: '/image/elemental-geochemestry.png',
     },
     {
       icon: ShieldCheck,
       title: t.services.certification.title,
       description: t.services.certification.description,
       features: ['Digital certificates', 'Hash verification', 'QR traceability', 'ISO compliance'],
-      color: 'text-success-600',
+      color: 'text-success-700',
       bgColor: 'bg-success-50',
+      image: '/image/gold.jpg',
     },
   ];
 
@@ -77,8 +81,15 @@ const Services: React.FC = () => {
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: index * 0.1 }}
             >
-              <Card hover padding="lg" className="h-full">
-                <div className={`w-16 h-16 rounded-2xl ${service.bgColor} flex items-center justify-center mb-6`}>
+              <Card hover padding="lg" className="h-full overflow-hidden">
+                {/* Top image */}
+                {service.image && (
+                  <div className="-mx-6 -mt-6 mb-6 h-40 relative">
+                    <Image src={service.image} alt={service.title} fill className="object-cover" priority={index === 0} />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+                  </div>
+                )}
+                <div className={`w-16 h-16 rounded-2xl ${service.bgColor} flex items-center justify-center mb-6 shadow-soft`}>
                   <service.icon className={`w-8 h-8 ${service.color}`} />
                 </div>
                 

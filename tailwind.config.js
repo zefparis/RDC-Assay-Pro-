@@ -21,6 +21,19 @@ module.exports = {
           900: '#0c4a6e',
           950: '#082f49',
         },
+        accent: {
+          50: '#fffbeb',
+          100: '#fef3c7',
+          200: '#fde68a',
+          300: '#fcd34d',
+          400: '#fbbf24',
+          500: '#f59e0b',
+          600: '#d97706',
+          700: '#b45309',
+          800: '#92400e',
+          900: '#78350f',
+          950: '#451a03',
+        },
         secondary: {
           50: '#fafaf9',
           100: '#f5f5f4',
@@ -77,6 +90,10 @@ module.exports = {
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
         mono: ['JetBrains Mono', 'Consolas', 'monospace'],
+      },
+      borderRadius: {
+        xl: '0.875rem',
+        '2xl': '1.25rem',
       },
       animation: {
         'fade-in': 'fadeIn 0.5s ease-in-out',

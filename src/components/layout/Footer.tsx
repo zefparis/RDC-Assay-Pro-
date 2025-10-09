@@ -98,7 +98,7 @@ const Footer: React.FC = () => {
             <ul className="space-y-4">
               {contactInfo.map((contact) => (
                 <li key={contact.label} className="flex items-center gap-3">
-                  <contact.icon className="w-4 h-4 text-primary-400" />
+                  <contact.icon className="w-4 h-4 text-accent-400" />
                   <div>
                     <div className="text-xs text-secondary-400">{contact.label}</div>
                     <div className="text-secondary-300">{contact.value}</div>

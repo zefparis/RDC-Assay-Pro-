@@ -27,6 +27,7 @@ export default function ClientPortalPage() {
   const [loading, setLoading] = useState(true);
   const [authorized, setAuthorized] = useState<boolean | null>(null);
   const [items, setItems] = useState<ClientSampleItem[]>([]);
+  const [email, setEmail] = useState<string | null>(null);
 
   const load = async () => {
     setLoading(true);
@@ -35,10 +36,19 @@ export default function ClientPortalPage() {
       if (res.status === 401) {
         setAuthorized(false);
         setItems([]);
+        setEmail(null);
       } else if (res.ok) {
         const json = await res.json();
         setItems(json.data || []);
         setAuthorized(true);
+        // Load client email for header chip
+        try {
+          const meRes = await fetch('/api/client/me', { credentials: 'include' });
+          if (meRes.ok) {
+            const me = await meRes.json();
+            setEmail(me?.data?.email || null);
+          }
+        } catch {}
       } else {
         const j = await res.json().catch(() => ({}));
         throw new Error(j.error || `HTTP ${res.status}`);
@@ -81,7 +91,12 @@ export default function ClientPortalPage() {
       <Toaster />
       <div className="max-w-4xl mx-auto px-4">
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-2xl font-semibold">Espace Client</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-semibold">Espace Client</h1>
+            {authorized && email && (
+              <Badge variant="accent" size="sm">{email}</Badge>
+            )}
+          </div>
           {authorized && (
             <div className="flex gap-2">
               <Button variant="ghost" onClick={load} disabled={loading}>Rafraîchir</Button>
@@ -104,6 +119,15 @@ export default function ClientPortalPage() {
 
           {!loading && authorized && (
             <div className="space-y-4">
+              {/* Legend */}
+              <div className="flex flex-wrap gap-2 text-sm">
+                <span className="text-secondary-600">Légende:</span>
+                <Badge variant="success" size="sm">Reported</Badge>
+                <Badge variant="info" size="sm">In Analysis</Badge>
+                <Badge variant="warning" size="sm">QA/QC</Badge>
+                <Badge variant="secondary" size="sm">Delivered</Badge>
+              </div>
+
               {items.length === 0 && (
                 <div className="text-secondary-600">Aucun échantillon associé à votre compte pour l&apos;instant.</div>
               )}
@@ -120,7 +144,7 @@ export default function ClientPortalPage() {
                         href={reportUrl(it.report.reportCode)}
                         target="_blank"
                         rel="noreferrer"
-                        className="text-primary-600 hover:text-primary-700 text-sm"
+                        className="text-accent-700 hover:text-accent-800 text-sm"
                       >
                         Télécharger le rapport
                       </a>

@@ -36,7 +36,7 @@ const Header: React.FC<HeaderProps> = ({ onLoginClick }) => {
   }, []);
 
   return (
-    <header className="sticky top-0 z-50 backdrop-blur-md bg-white/80 border-b border-secondary-200 shadow-soft">
+    <header className="sticky top-0 z-50 backdrop-blur-xl bg-white/80 border-b border-secondary-200/80 shadow-soft">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -50,7 +50,7 @@ const Header: React.FC<HeaderProps> = ({ onLoginClick }) => {
             </motion.div>
             <div className="flex items-center gap-2">
               <span className="font-bold text-xl text-secondary-900">GeoCert Africa</span>
-              <Badge variant="info" size="sm">Filiale de SGS</Badge>
+              <Badge variant="accent" size="sm">Filiale de SGS</Badge>
             </div>
           </div>
 
@@ -61,7 +61,7 @@ const Header: React.FC<HeaderProps> = ({ onLoginClick }) => {
                 <Link
                   key={item.key}
                   href={item.href}
-                  className="text-secondary-600 hover:text-primary-600 font-medium transition-colors duration-200"
+                  className="text-secondary-700 hover:text-primary-700 font-medium transition-colors duration-200"
                 >
                   {item.label}
                 </Link>
@@ -69,15 +69,16 @@ const Header: React.FC<HeaderProps> = ({ onLoginClick }) => {
                 <a
                   key={item.key}
                   href={item.href}
-                  className="text-secondary-600 hover:text-primary-600 font-medium transition-colors duration-200"
+                  className="text-secondary-700 hover:text-primary-700 font-medium transition-colors duration-200"
                 >
                   {item.label}
                 </a>
               )
             ))}
             {hasClientToken && (
-              <Link href="/client" className="text-secondary-600 hover:text-primary-600 font-medium transition-colors duration-200">
-                Client
+              <Link href="/client" className="inline-flex items-center gap-2 font-semibold text-accent-700 hover:text-accent-800 transition-colors">
+                <span>Client</span>
+                <span className="inline-block w-2 h-2 rounded-full bg-accent-500" />
               </Link>
             )}
           </nav>
@@ -112,7 +113,7 @@ const Header: React.FC<HeaderProps> = ({ onLoginClick }) => {
               </div>
             ) : (
               <Button
-                variant="outline"
+                variant="accent"
                 size="sm"
                 onClick={onLoginClick}
                 icon={<LogIn className="w-4 h-4" />}
@@ -147,7 +148,7 @@ const Header: React.FC<HeaderProps> = ({ onLoginClick }) => {
                   <Link
                     key={item.key}
                     href={item.href}
-                    className="text-secondary-600 hover:text-primary-600 font-medium py-2 transition-colors duration-200"
+                    className="text-secondary-700 hover:text-primary-700 font-medium py-2 transition-colors duration-200"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     {item.label}
@@ -156,7 +157,7 @@ const Header: React.FC<HeaderProps> = ({ onLoginClick }) => {
                   <a
                     key={item.key}
                     href={item.href}
-                    className="text-secondary-600 hover:text-primary-600 font-medium py-2 transition-colors duration-200"
+                    className="text-secondary-700 hover:text-primary-700 font-medium py-2 transition-colors duration-200"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     {item.label}
@@ -166,10 +167,11 @@ const Header: React.FC<HeaderProps> = ({ onLoginClick }) => {
               {hasClientToken && (
                 <Link
                   href="/client"
-                  className="text-secondary-600 hover:text-primary-600 font-medium py-2 transition-colors duration-200"
+                  className="inline-flex items-center gap-2 font-semibold text-accent-700 hover:text-accent-800 py-2 transition-colors"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  Client
+                  <span>Client</span>
+                  <span className="inline-block w-2 h-2 rounded-full bg-accent-500" />
                 </Link>
               )}
               <div className="flex items-center gap-2 pt-2 border-t border-secondary-200">

@@ -101,7 +101,7 @@ const Reports: React.FC = () => {
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-secondary-200">
+                  <tr className="border-b border-secondary-200 bg-secondary-50">
                     {[
                       t.reports.id,
                       t.reports.site,
@@ -155,7 +155,7 @@ const Reports: React.FC = () => {
                           size="sm"
                           onClick={() => handleDownload(report)}
                           icon={<Download className="w-4 h-4" />}
-                          className="text-primary-600 hover:text-primary-700"
+                          className="text-accent-700 hover:text-accent-800"
                         >
                           {t.reports.download}
                         </Button>

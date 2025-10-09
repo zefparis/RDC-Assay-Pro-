@@ -105,7 +105,7 @@ const SampleSubmission: React.FC = () => {
         >
           <Card padding="lg" className="shadow-strong">
             <div className="flex items-center gap-3 mb-8">
-              <FlaskConical className="w-6 h-6 text-primary-600" />
+              <FlaskConical className="w-6 h-6 text-accent-600" />
               <div>
                 <h2 className="text-2xl font-bold text-secondary-900">
                   {t.submission.title}
@@ -174,6 +174,7 @@ const SampleSubmission: React.FC = () => {
                   loading={loading}
                   size="lg"
                   className="min-w-32"
+                  variant="accent"
                   disabled={!isAuthenticated}
                 >
                   {t.submission.submit}
