@@ -36,7 +36,7 @@ export default function AccessRequestPage() {
     <section className="py-14 bg-secondary-50 min-h-[70vh]">
       <Toaster />
       <div className="max-w-lg mx-auto px-4">
-        <Card padding="xl" className="shadow-strong">
+        <Card padding="lg" className="shadow-strong">
           <div className="text-2xl font-semibold mb-2">Request Access</div>
           <p className="text-secondary-600 mb-6">Enter your email to request access to the RDC Assay client portal.</p>
           {!submitted ? (

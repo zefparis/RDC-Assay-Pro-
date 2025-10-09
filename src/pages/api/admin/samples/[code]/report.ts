@@ -1,5 +1,18 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { uploadReportLocal, findByCode } from '@/lib/server/localStore';
+import { verifyBossToken, readBearer, isBossAuthDisabled } from '@/lib/server/bossAuth';
+
+function requireBoss(req: NextApiRequest, res: NextApiResponse): boolean {
+  if (isBossAuthDisabled()) return true;
+  const cookie = req.headers.cookie || '';
+  const m = /(?:^|; )bossToken=([^;]+)/.exec(cookie);
+  const token = (m && m[1]) || readBearer(req);
+  if (!verifyBossToken(token)) {
+    res.status(401).json({ error: 'Unauthorized' });
+    return false;
+  }
+  return true;
+}
 
 function toBackendStatusToken(local: string): string {
   switch (local) {
@@ -37,6 +50,7 @@ function shape(code: string) {
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (!requireBoss(req, res)) return;
   if (req.method !== 'POST') {
     res.setHeader('Allow', ['POST']);
     return res.status(405).json({ error: 'Method Not Allowed' });
