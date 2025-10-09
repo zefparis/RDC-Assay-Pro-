@@ -20,6 +20,44 @@ export interface LocalTimelineEvent {
   notes?: string;
 }
 
+export function createSubmittedSample(input: {
+  site: string;
+  mineral?: string;
+  unit?: string;
+  mass?: number;
+  notes?: string;
+}): LocalSample {
+  const now = new Date();
+  const yy = String(now.getUTCFullYear()).slice(-2);
+  const mm = String(now.getUTCMonth() + 1).padStart(2, '0');
+  const tail = String(now.getTime()).slice(-3);
+  const extra = Math.floor(Math.random() * 10);
+  const shortDigits = `${yy}${mm}${tail}`.slice(0, 6) + String(extra);
+  const checkDigit = computeLuhnDigit(shortDigits);
+  const seq = `${yy}${mm}${tail}${String(extra)}`.slice(-6);
+  const fullCode = `RC-${yy}${mm}-${seq}`;
+
+  const sample: LocalSample = {
+    id: shortDigits,
+    fullCode,
+    shortCode: shortDigits,
+    checkDigit,
+    site: input.site || 'Kolwezi',
+    mineral: input.mineral,
+    unit: input.unit,
+    mass: input.mass,
+    notes: input.notes,
+    status: 'Received',
+    createdAt: nowISO(),
+    updatedAt: nowISO(),
+    timeline: [
+      { type: 'Received', at: nowISO(), notes: input.notes },
+    ],
+  };
+  STORE.samples.set(sample.id, sample);
+  return sample;
+}
+
 export interface LocalSample {
   id: string; // shortCode (7 digits) used as primary key in this store
   fullCode: string; // RC-YYMM-######

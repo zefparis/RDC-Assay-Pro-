@@ -127,14 +127,18 @@ const mapUnitToBackend = (frontendUnit: string): string => {
 export const api = {
   // Sample management
   async searchSamples(query: string = '', page: number = 1, limit: number = 10): Promise<PaginatedResponse<Sample>> {
+    // Use Next API (local store) so we see our freshly created samples and sites
     const params = new URLSearchParams({
       page: page.toString(),
       limit: limit.toString(),
       ...(query && { search: query })
     });
-    
-    const response = await apiRequest(`/samples?${params}`);
-    
+    const res = await fetch(`/api/admin/samples?${params.toString()}`, { credentials: 'include' });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || `HTTP ${res.status}`);
+    }
+    const response = await res.json();
     return {
       data: response.data.map((sample: any) => ({
         id: sample.sampleCode,
@@ -161,9 +165,14 @@ export const api = {
   },
 
   async getSample(id: string): Promise<Sample> {
-    const response = await apiRequest(`/samples/code/${id}`);
+    // Use Next tracking endpoint backed by local store
+    const res = await fetch(`/api/tracking/${encodeURIComponent(id)}`, { credentials: 'include' });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || `HTTP ${res.status}`);
+    }
+    const response = await res.json();
     const sample = response.data.sample;
-    
     return {
       id: sample.sampleCode,
       mineral: mapMineral(sample.mineral),
@@ -186,21 +195,25 @@ export const api = {
   },
 
   async createSample(payload: SampleSubmission): Promise<Sample> {
-    const backendPayload = {
-      mineral: mapMineralToBackend(payload.mineral),
-      site: payload.site,
-      unit: mapUnitToBackend(payload.unit),
-      mass: payload.mass,
-      notes: payload.notes
-    };
-    
-    const response = await apiRequest('/samples', {
+    // Use Next API (local store) to create a Received sample reflecting the form inputs
+    const res = await fetch('/api/samples', {
       method: 'POST',
-      body: JSON.stringify(backendPayload)
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({
+        mineral: payload.mineral,
+        site: payload.site,
+        unit: payload.unit,
+        mass: payload.mass,
+        notes: payload.notes,
+      }),
     });
-    
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || `HTTP ${res.status}`);
+    }
+    const response = await res.json();
     const sample = response.data.sample;
-    
     return {
       id: sample.sampleCode,
       mineral: mapMineral(sample.mineral),
