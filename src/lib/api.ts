@@ -600,12 +600,12 @@ export const api = {
     return { ...json.data, link: json.link };
   },
 
-  async adminSendInvite(code: string): Promise<void> {
+  async adminSendInvite(code: string, opts: { email?: string; expiresAt?: string; ttlMinutes?: number } = {}): Promise<void> {
     const res = await fetch(`/api/admin/invites/${encodeURIComponent(code)}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
-      body: JSON.stringify({ action: 'send' }),
+      body: JSON.stringify({ action: 'send', ...opts }),
     });
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));

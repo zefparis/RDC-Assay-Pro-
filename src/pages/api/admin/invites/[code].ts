@@ -25,15 +25,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(200).json({ success: true, data: inv });
     }
     if (req.method === 'PATCH') {
-      const { action } = (req.body || {}) as { action?: 'send' };
+      const { action, email, expiresAt, ttlMinutes } = (req.body || {}) as { action?: 'send'; email?: string; expiresAt?: string; ttlMinutes?: number };
       if (action === 'send') {
-        const inv = listInvites().find(i => i.code === code);
-        if (!inv) return res.status(404).json({ error: 'Not found' });
+        let inv = listInvites().find(i => i.code === code);
         const base = computeBaseUrlFromHeaders(req.headers as any);
         try {
+          if (!inv) {
+            // Fallback: accept email/expiresAt from request to send even if in-memory invite is gone (serverless cold start)
+            if (!email) return res.status(404).json({ error: 'Not found' });
+            const createdAt = new Date().toISOString();
+            const exp = expiresAt || new Date(Date.now() + (Number(ttlMinutes) || 60) * 60 * 1000).toISOString();
+            const temp = { email: String(email).toLowerCase(), code, createdAt, expiresAt: exp, status: 'Pending' as const };
+            await sendInviteEmail(temp as any, base);
+            return res.status(200).json({ success: true, data: { ...temp, status: 'Sent' } });
+          }
           await sendInviteEmail(inv, base);
           const it = markInviteSent(code);
-          return res.status(200).json({ success: true, data: it });
+          return res.status(200).json({ success: true, data: it || inv });
         } catch (e: any) {
           return res.status(502).json({ error: `Mail send failed: ${e?.message || 'unknown'}` });
         }

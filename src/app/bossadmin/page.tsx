@@ -420,7 +420,7 @@ export default function BossAdminPage() {
                                   toast.success(locale === 'fr' ? 'Lien copié' : 'Link copied');
                                 } catch {}
                               }}>{locale === 'fr' ? 'Copier' : 'Copy'}</Button>
-                              <Button variant="outline" size="sm" onClick={async () => { try { await api.adminSendInvite(inv.code); toast.success('Sent'); await loadInvitesSafe(); } catch (e: any) { toast.error(e?.message || 'Failed'); } }}>{locale === 'fr' ? 'Envoyer' : 'Send'}</Button>
+                              <Button variant="outline" size="sm" onClick={async () => { try { await api.adminSendInvite(inv.code, { email: inv.email, expiresAt: inv.expiresAt }); toast.success(locale === 'fr' ? 'Envoyé' : 'Sent'); await loadInvitesSafe(); } catch (e: any) { toast.error(e?.message || 'Failed'); } }}>{locale === 'fr' ? 'Envoyer' : 'Send'}</Button>
                               <Button variant="danger" size="sm" onClick={async () => { if (!window.confirm(locale === 'fr' ? 'Révoquer ?' : 'Revoke?')) return; try { await api.adminRevokeInvite(inv.code); toast.success('Revoked'); await loadInvitesSafe(); } catch (e: any) { toast.error(e?.message || 'Failed'); } }}>{locale === 'fr' ? 'Révoquer' : 'Revoke'}</Button>
                             </div>
                           </td>
