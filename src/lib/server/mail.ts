@@ -55,19 +55,21 @@ export function computeBaseUrlFromHeaders(headers: Record<string, any>): string 
 
 export async function sendInviteEmail(invite: LocalInvite, baseUrl: string) {
   const url = `${baseUrl.replace(/\/$/, '')}/api/auth/client-redeem?code=${encodeURIComponent(invite.code)}`;
-  const subject = 'Your RDC Assay access link';
+  const subject = `Your RDC Assay access code: ${invite.code}`;
   const html = `
     <div style="font-family:Arial,sans-serif;">
       <h2>Welcome to RDC Assay</h2>
-      <p>Click the button to access your client space:</p>
+      <p>Your access code is:</p>
+      <p style="font-size:20px;font-weight:bold;letter-spacing:2px;background:#f3f4f6;padding:8px 12px;border-radius:8px;display:inline-block;">${invite.code}</p>
+      <p style="margin-top:12px;">You can also click the button to access your client space directly:</p>
       <p><a href="${url}" style="background:#0ea5e9;color:white;padding:10px 16px;border-radius:6px;text-decoration:none;">Access now</a></p>
       <p>If the button doesn't work, copy this link:</p>
       <p style="word-break:break-all;"><a href="${url}">${url}</a></p>
       <hr/>
-      <p>This link expires at: <strong>${new Date(invite.expiresAt).toLocaleString()}</strong></p>
+      <p>This code/link expires at: <strong>${new Date(invite.expiresAt).toLocaleString()}</strong></p>
     </div>
   `;
-  const text = `Access your account: ${url}\nExpires at: ${new Date(invite.expiresAt).toLocaleString()}`;
+  const text = `Your access code: ${invite.code}\nAccess your account: ${url}\nExpires at: ${new Date(invite.expiresAt).toLocaleString()}`;
   await sendBrevoEmail({
     to: [{ email: invite.email }],
     subject,

@@ -419,7 +419,13 @@ export default function BossAdminPage() {
                                   await navigator.clipboard?.writeText(`${window.location.origin}/api/auth/client-redeem?code=${inv.code}`);
                                   toast.success(locale === 'fr' ? 'Lien copié' : 'Link copied');
                                 } catch {}
-                              }}>{locale === 'fr' ? 'Copier' : 'Copy'}</Button>
+                              }}>{locale === 'fr' ? 'Copier lien' : 'Copy link'}</Button>
+                              <Button variant="outline" size="sm" onClick={async () => {
+                                try {
+                                  await navigator.clipboard?.writeText(inv.code);
+                                  toast.success(locale === 'fr' ? 'Code copié' : 'Code copied');
+                                } catch {}
+                              }}>{locale === 'fr' ? 'Copier code' : 'Copy code'}</Button>
                               <Button variant="outline" size="sm" onClick={async () => { try { await api.adminSendInvite(inv.code, { email: inv.email, expiresAt: inv.expiresAt }); toast.success(locale === 'fr' ? 'Envoyé' : 'Sent'); await loadInvitesSafe(); } catch (e: any) { toast.error(e?.message || 'Failed'); } }}>{locale === 'fr' ? 'Envoyer' : 'Send'}</Button>
                               <Button variant="danger" size="sm" onClick={async () => { if (!window.confirm(locale === 'fr' ? 'Révoquer ?' : 'Revoke?')) return; try { await api.adminRevokeInvite(inv.code); toast.success('Revoked'); await loadInvitesSafe(); } catch (e: any) { toast.error(e?.message || 'Failed'); } }}>{locale === 'fr' ? 'Révoquer' : 'Revoke'}</Button>
                             </div>
