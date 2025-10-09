@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, Suspense } from 'react';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
@@ -8,6 +8,23 @@ import toast, { Toaster } from 'react-hot-toast';
 import { useSearchParams } from 'next/navigation';
 
 export default function AccessRequestPage() {
+  return (
+    <Suspense fallback={
+      <section className="py-14 bg-secondary-50 min-h-[70vh]">
+        <div className="max-w-lg mx-auto px-4">
+          <Card padding="lg" className="shadow-strong">
+            <div className="text-2xl font-semibold mb-2">Demander l&apos;accès</div>
+            <p className="text-secondary-600">Chargement…</p>
+          </Card>
+        </div>
+      </section>
+    }>
+      <AccessRequestInner />
+    </Suspense>
+  );
+}
+
+function AccessRequestInner() {
   const params = useSearchParams();
   const initialEmail = useMemo(() => (params?.get('email') ?? ''), [params]);
   const [email, setEmail] = useState(initialEmail);
