@@ -47,10 +47,10 @@ const Header: React.FC<HeaderProps> = ({ onLoginClick }) => {
               <Image
                 src="/image/logo lab.png"
                 alt="RDC LAB - Laboratoire d'Analyse Minérale"
-                width={40}
-                height={40}
+                width={56}
+                height={56}
                 priority
-                className="h-10 w-auto rounded-md object-contain"
+                className="h-14 w-auto rounded-md object-contain"
               />
               <span className="sr-only">RDC LAB</span>
             </Link>
