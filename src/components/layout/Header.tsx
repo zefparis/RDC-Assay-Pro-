@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { LogIn, LogOut, Menu, X, Globe, User, Sun, Moon } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/hooks/useAuth';
 import Button from '@/components/ui/Button';
-import Badge from '@/components/ui/Badge';
 import { useTheme } from '@/hooks/useTheme';
 
 interface HeaderProps {
@@ -43,17 +43,17 @@ const Header: React.FC<HeaderProps> = ({ onLoginClick }) => {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <div className="flex items-center gap-3">
-            <motion.div 
-              className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-600 to-primary-700 text-white grid place-items-center font-bold text-lg shadow-medium"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              G
-            </motion.div>
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-xl text-secondary-900 dark:text-white">GeoCert Africa</span>
-              <Badge variant="accent" size="sm">Filiale de SGS</Badge>
-            </div>
+            <Link href="/" className="flex items-center gap-3" aria-label="RDC LAB - Accueil">
+              <Image
+                src="/image/logo lab.png"
+                alt="RDC LAB - Laboratoire d'Analyse Minérale"
+                width={40}
+                height={40}
+                priority
+                className="h-10 w-auto rounded-md object-contain"
+              />
+              <span className="sr-only">RDC LAB</span>
+            </Link>
           </div>
 
           {/* Desktop Navigation */}
