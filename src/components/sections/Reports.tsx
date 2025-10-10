@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { ShieldCheck, Download, Filter, FileText } from 'lucide-react';
+import { ShieldCheck, Download, Filter, FileText, ExternalLink } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { api } from '@/lib/api';
 import { Report } from '@/types';
@@ -196,6 +196,32 @@ const Reports: React.FC = () => {
                 <div className="flex items-center gap-2 text-secondary-600 dark:text-secondary-400">
                   <Download className="w-4 h-4 text-secondary-600" />
                   <span>ISO compliance</span>
+                </div>
+              </div>
+            </div>
+
+            {/* FILAB Partnership Info */}
+            <div className="mt-8 p-6 rounded-lg bg-secondary-100/60 dark:bg-secondary-800/60 border border-secondary-200 dark:border-secondary-800">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold text-secondary-900 dark:text-secondary-100">
+                    Analyses réalisées avec notre partenaire FILAB
+                  </h3>
+                  <p className="mt-1 text-secondary-700 dark:text-secondary-300 max-w-3xl">
+                    Pour garantir la qualité et la fiabilité de nos rapports et certificats, nous réalisons nos
+                    analyses et caractérisations des matériaux en collaboration avec <span className="font-medium">FILAB</span>,
+                    laboratoire privé de référence en France. Cette collaboration nous permet d’offrir des résultats
+                    précis, traçables et conformes aux meilleures pratiques du secteur.
+                  </p>
+                </div>
+                <div className="shrink-0">
+                  <a
+                    href="https://filab.fr/nos-prestations/analyse/laboratoire-caracterisation-des-materiaux/?gad_source=1&gad_campaignid=21888980324&gbraid=0AAAAADpoRnHJr6cn4nZhkd3nVDh-z0Qdv&gclid=Cj0KCQjw3aLHBhDTARIsAIRij582R3jJdTvI0J7AyuzepdC8u5FQxn_yb7pnw8ThhiDYFIzVNngSmwEaAhNuEALw_wcB"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Button variant="primary" size="sm" icon={<ExternalLink className="w-4 h-4" />}>Voir le laboratoire FILAB</Button>
+                  </a>
                 </div>
               </div>
             </div>
