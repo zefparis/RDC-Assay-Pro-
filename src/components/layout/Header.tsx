@@ -53,7 +53,7 @@ const Header: React.FC<HeaderProps> = ({ onLoginClick }) => {
                 className="h-14 w-auto rounded-md object-contain"
               />
               <span className="sr-only">RDC LAB</span>
-              <span className="hidden sm:inline-flex items-baseline gap-1 font-extrabold tracking-tight">
+              <span className="inline-flex items-baseline gap-1 font-extrabold tracking-tight text-base sm:text-lg">
                 <span className="text-primary-700 dark:text-primary-400">RDC</span>
                 <span className="text-orange-500">LAB</span>
               </span>
