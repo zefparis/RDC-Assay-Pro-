@@ -24,7 +24,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="fr">
+    <html lang="fr" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(() => { try { const d = document.documentElement; let t = localStorage.getItem('rdc-theme'); if (!t) { t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light'; } if (t === 'dark') d.classList.add('dark'); else d.classList.remove('dark'); } catch (e) {} })();`,
+          }}
+        />
+      </head>
       <body className={inter.className}>{children}</body>
     </html>
   );

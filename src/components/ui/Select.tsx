@@ -11,16 +11,16 @@ export interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElemen
 
 const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
   ({ className, label, error, helperText, options, ...props }, ref) => {
-    const baseClasses = 'w-full px-3 py-2 pr-10 rounded-xl border transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed appearance-none bg-white';
+    const baseClasses = 'w-full px-3 py-2 pr-10 rounded-xl border transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed appearance-none bg-white text-secondary-900 dark:bg-secondary-900 dark:text-secondary-100';
     
     const stateClasses = error 
-      ? 'border-danger-300 focus:border-danger-500 focus:ring-danger-200'
-      : 'border-secondary-300 focus:border-primary-500 focus:ring-primary-200';
+      ? 'border-danger-300 focus:border-danger-500 focus:ring-danger-200 dark:border-danger-700 dark:focus:ring-danger-800'
+      : 'border-secondary-300 focus:border-primary-500 focus:ring-primary-200 dark:border-secondary-700 dark:focus:ring-primary-900';
 
     return (
       <div className="space-y-1">
         {label && (
-          <label className="block text-sm font-medium text-secondary-700">
+          <label className="block text-sm font-medium text-secondary-700 dark:text-secondary-300">
             {label}
           </label>
         )}
@@ -44,13 +44,13 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
               </option>
             ))}
           </select>
-          <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-secondary-400 pointer-events-none" />
+          <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-secondary-400 dark:text-secondary-500 pointer-events-none" />
         </div>
         {error && (
-          <p className="text-sm text-danger-600">{error}</p>
+          <p className="text-sm text-danger-600 dark:text-danger-400">{error}</p>
         )}
         {helperText && !error && (
-          <p className="text-sm text-secondary-500">{helperText}</p>
+          <p className="text-sm text-secondary-500 dark:text-secondary-400">{helperText}</p>
         )}
       </div>
     );

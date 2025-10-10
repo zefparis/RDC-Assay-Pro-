@@ -47,7 +47,7 @@ export default function TrackPage({ params }: { params: { code: string } }) {
   }, [params.code]);
 
   return (
-    <div className="min-h-screen bg-secondary-50 py-16">
+    <div className="min-h-screen bg-secondary-50 dark:bg-secondary-900 py-16">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-6">
           <Button variant="ghost" onClick={() => router.push("/#tracking") } icon={<ChevronLeft className="w-4 h-4" />}>Retour</Button>
@@ -57,17 +57,17 @@ export default function TrackPage({ params }: { params: { code: string } }) {
           <div className="flex items-center gap-3 mb-6">
             <QrCode className="w-6 h-6 text-primary-600" />
             <div>
-              <h1 className="text-2xl font-bold text-secondary-900">Suivi de l&apos;échantillon</h1>
-              <p className="text-secondary-600">Code: {params.code}</p>
+              <h1 className="text-2xl font-bold text-secondary-900 dark:text-secondary-100">Suivi de l&apos;échantillon</h1>
+              <p className="text-secondary-600 dark:text-secondary-400">Code: {params.code}</p>
             </div>
           </div>
 
           {loading && (
-            <div className="py-12 text-center text-secondary-500">Chargement…</div>
+            <div className="py-12 text-center text-secondary-500 dark:text-secondary-400">Chargement…</div>
           )}
 
           {!loading && error && (
-            <div className="p-4 rounded-xl bg-danger-50 border border-danger-200 flex items-center gap-2 text-danger-700">
+            <div className="p-4 rounded-xl bg-danger-50 border border-danger-200 dark:bg-danger-900/20 dark:border-danger-800 flex items-center gap-2 text-danger-700 dark:text-danger-300">
               <AlertCircle className="w-4 h-4" />
               {error}
             </div>
@@ -82,28 +82,28 @@ export default function TrackPage({ params }: { params: { code: string } }) {
                     alt={`QR ${sample.id}`}
                     width={144}
                     height={144}
-                    className="rounded-lg bg-white p-1 border border-secondary-200 shadow-sm"
+                    className="rounded-lg bg-white p-1 border border-secondary-200 dark:border-secondary-700 shadow-sm"
                   />
                 )}
                 <div className="space-y-2">
-                  <div className="font-mono text-secondary-900 text-lg">{sample.id}</div>
-                  <div className="text-secondary-700">{sample.site} • {sample.mineral}</div>
+                  <div className="font-mono text-secondary-900 dark:text-secondary-100 text-lg">{sample.id}</div>
+                  <div className="text-secondary-700 dark:text-secondary-300">{sample.site} • {sample.mineral}</div>
                   {sample.grade != null && (
-                    <div className="text-secondary-900 font-medium">{sample.grade} {sample.unit}</div>
+                    <div className="text-secondary-900 dark:text-secondary-100 font-medium">{sample.grade} {sample.unit}</div>
                   )}
                 </div>
               </div>
 
               {sample.timeline && sample.timeline.length > 0 && (
                 <div>
-                  <div className="text-sm text-secondary-500 mb-3">Historique</div>
+                  <div className="text-sm text-secondary-500 dark:text-secondary-400 mb-3">Historique</div>
                   <div className="flex flex-col gap-3">
                     {sample.timeline.map((e, idx) => (
                       <div key={idx} className="flex items-center gap-3">
                         <StatusIcon done={e.done} />
                         <div className="text-sm">
-                          <span className="font-medium text-secondary-900">{e.label}</span>
-                          {e.when && <span className="text-secondary-500 ml-2">• {e.when}</span>}
+                          <span className="font-medium text-secondary-900 dark:text-secondary-100">{e.label}</span>
+                          {e.when && <span className="text-secondary-500 dark:text-secondary-400 ml-2">• {e.when}</span>}
                         </div>
                       </div>
                     ))}

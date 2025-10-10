@@ -53,7 +53,7 @@ const Reports: React.FC = () => {
   };
 
   return (
-    <section id="reports" className="py-20 bg-secondary-50">
+    <section id="reports" className="py-20 bg-secondary-50 dark:bg-secondary-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -65,10 +65,10 @@ const Reports: React.FC = () => {
             <div className="flex items-center gap-3 mb-8">
               <ShieldCheck className="w-6 h-6 text-success-600" />
               <div>
-                <h2 className="text-2xl font-bold text-secondary-900">
+                <h2 className="text-2xl font-bold text-secondary-900 dark:text-secondary-100">
                   {t.reports.title}
                 </h2>
-                <p className="text-secondary-600">
+                <p className="text-secondary-600 dark:text-secondary-400">
                   {t.reports.subtitle}
                 </p>
               </div>
@@ -101,7 +101,7 @@ const Reports: React.FC = () => {
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-secondary-200 bg-secondary-50">
+                  <tr className="border-b border-secondary-200 dark:border-secondary-700 bg-secondary-50 dark:bg-secondary-800">
                     {[
                       t.reports.id,
                       t.reports.site,
@@ -110,7 +110,7 @@ const Reports: React.FC = () => {
                       t.reports.certificate,
                       t.reports.hash,
                     ].map((header) => (
-                      <th key={header} className="text-left py-3 px-4 font-medium text-secondary-700">
+                      <th key={header} className="text-left py-3 px-4 font-medium text-secondary-700 dark:text-secondary-300">
                         {header}
                       </th>
                     ))}
@@ -119,7 +119,7 @@ const Reports: React.FC = () => {
                 <tbody>
                   {loading && (
                     <tr>
-                      <td colSpan={6} className="py-12 text-center text-secondary-500">
+                      <td colSpan={6} className="py-12 text-center text-secondary-500 dark:text-secondary-400">
                         {t.reports.loading}
                       </td>
                     </tr>
@@ -131,14 +131,14 @@ const Reports: React.FC = () => {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.3, delay: index * 0.05 }}
-                      className="border-b border-secondary-100 hover:bg-secondary-50 transition-colors"
+                      className="border-b border-secondary-100 dark:border-secondary-800 hover:bg-secondary-50 dark:hover:bg-secondary-800/50 transition-colors"
                     >
                       <td className="py-4 px-4">
-                        <code className="font-mono font-semibold text-secondary-900">
+                        <code className="font-mono font-semibold text-secondary-900 dark:text-secondary-100">
                           {report.id}
                         </code>
                       </td>
-                      <td className="py-4 px-4 text-secondary-700">
+                      <td className="py-4 px-4 text-secondary-700 dark:text-secondary-300">
                         {report.site}
                       </td>
                       <td className="py-4 px-4">
@@ -146,7 +146,7 @@ const Reports: React.FC = () => {
                           {report.mineral}
                         </Badge>
                       </td>
-                      <td className="py-4 px-4 font-medium text-secondary-900">
+                      <td className="py-4 px-4 font-medium text-secondary-900 dark:text-secondary-100">
                         {report.grade} {report.unit}
                       </td>
                       <td className="py-4 px-4">
@@ -155,13 +155,13 @@ const Reports: React.FC = () => {
                           size="sm"
                           onClick={() => handleDownload(report)}
                           icon={<Download className="w-4 h-4" />}
-                          className="text-accent-700 hover:text-accent-800"
+                          className="text-accent-700 hover:text-accent-800 dark:text-accent-400 dark:hover:text-accent-300"
                         >
                           {t.reports.download}
                         </Button>
                       </td>
                       <td className="py-4 px-4">
-                        <code className="text-xs text-secondary-500 font-mono">
+                        <code className="text-xs text-secondary-500 dark:text-secondary-400 font-mono">
                           {report.hash}
                         </code>
                       </td>
@@ -170,9 +170,9 @@ const Reports: React.FC = () => {
                   
                   {!loading && filteredReports.length === 0 && (
                     <tr>
-                      <td colSpan={6} className="py-12 text-center text-secondary-500">
+                      <td colSpan={6} className="py-12 text-center text-secondary-500 dark:text-secondary-400">
                         <div className="flex flex-col items-center gap-2">
-                          <FileText className="w-8 h-8 text-secondary-400" />
+                          <FileText className="w-8 h-8 text-secondary-400 dark:text-secondary-500" />
                           {t.reports.noReports}
                         </div>
                       </td>
@@ -183,17 +183,17 @@ const Reports: React.FC = () => {
             </div>
 
             {/* Certificate Features */}
-            <div className="mt-8 pt-6 border-t border-secondary-200">
+            <div className="mt-8 pt-6 border-t border-secondary-200 dark:border-secondary-800">
               <div className="grid sm:grid-cols-3 gap-4 text-sm">
-                <div className="flex items-center gap-2 text-secondary-600">
+                <div className="flex items-center gap-2 text-secondary-600 dark:text-secondary-400">
                   <ShieldCheck className="w-4 h-4 text-success-600" />
                   <span>Digital signatures</span>
                 </div>
-                <div className="flex items-center gap-2 text-secondary-600">
+                <div className="flex items-center gap-2 text-secondary-600 dark:text-secondary-400">
                   <FileText className="w-4 h-4 text-primary-600" />
                   <span>SHA-256 hashing</span>
                 </div>
-                <div className="flex items-center gap-2 text-secondary-600">
+                <div className="flex items-center gap-2 text-secondary-600 dark:text-secondary-400">
                   <Download className="w-4 h-4 text-secondary-600" />
                   <span>ISO compliance</span>
                 </div>

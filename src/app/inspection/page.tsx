@@ -89,16 +89,16 @@ export default function InspectionPage() {
   const stepsIcons = [ClipboardList, ShieldCheck, MapPin, Globe2, Beaker, CheckCircle2, Truck];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-secondary-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-secondary-50 to-white dark:from-secondary-950 dark:to-secondary-900">
       <Header />
       {/* Hero */}
       <section className="relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-            <h1 className="text-4xl lg:text-6xl font-bold text-secondary-900 leading-tight">
+            <h1 className="text-4xl lg:text-6xl font-bold text-secondary-900 dark:text-secondary-100 leading-tight">
               {I.hero.title}
             </h1>
-            <p className="mt-4 text-lg text-secondary-700 max-w-3xl">
+            <p className="mt-4 text-lg text-secondary-700 dark:text-secondary-300 max-w-3xl">
               {I.hero.tagline}
             </p>
             <div className="mt-8 flex gap-4">
@@ -118,7 +118,7 @@ export default function InspectionPage() {
       {/* Why */}
       <section id="why" className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.h2 className="text-2xl font-bold text-secondary-900 mb-6" initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+          <motion.h2 className="text-2xl font-bold text-secondary-900 dark:text-secondary-100 mb-6" initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
             {I.why.title}
           </motion.h2>
           <div className="grid md:grid-cols-2 gap-6">
@@ -127,7 +127,7 @@ export default function InspectionPage() {
                 <Card padding="lg" className="h-full">
                   <div className="flex items-start gap-3">
                     <ShieldCheck className="w-5 h-5 text-success-600 mt-0.5" />
-                    <p className="text-secondary-700">{txt}</p>
+                    <p className="text-secondary-700 dark:text-secondary-300">{txt}</p>
                   </div>
                 </Card>
               </motion.div>
@@ -137,9 +137,9 @@ export default function InspectionPage() {
       </section>
 
       {/* Process */}
-      <section className="py-16 bg-secondary-50">
+      <section className="py-16 bg-secondary-50 dark:bg-secondary-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.h2 className="text-2xl font-bold text-secondary-900 mb-6" initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+          <motion.h2 className="text-2xl font-bold text-secondary-900 dark:text-secondary-100 mb-6" initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
             {I.process.title}
           </motion.h2>
           <div className="grid lg:grid-cols-7 md:grid-cols-4 grid-cols-2 gap-4">
@@ -148,11 +148,11 @@ export default function InspectionPage() {
               return (
                 <motion.div key={s} initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
                   <Card padding="md" className="text-center">
-                    <div className="mx-auto w-10 h-10 rounded-xl bg-primary-50 border border-primary-200 grid place-items-center mb-2">
+                    <div className="mx-auto w-10 h-10 rounded-xl bg-primary-50 dark:bg-secondary-800 border border-primary-200 dark:border-secondary-700 grid place-items-center mb-2">
                       <Icon className="w-5 h-5 text-primary-600" />
                     </div>
-                    <div className="text-xs uppercase tracking-wide text-secondary-500">{i + 1}</div>
-                    <div className="font-medium text-secondary-900">{s}</div>
+                    <div className="text-xs uppercase tracking-wide text-secondary-500 dark:text-secondary-400">{i + 1}</div>
+                    <div className="font-medium text-secondary-900 dark:text-secondary-100">{s}</div>
                   </Card>
                 </motion.div>
               );
@@ -164,20 +164,20 @@ export default function InspectionPage() {
       {/* Pricing */}
       <section className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.h2 className="text-2xl font-bold text-secondary-900 mb-6" initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+          <motion.h2 className="text-2xl font-bold text-secondary-900 dark:text-secondary-100 mb-6" initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
             {I.pricing.title}
           </motion.h2>
           <Card padding="lg">
             <div className="overflow-x-auto">
               <table className="min-w-full text-left">
                 <thead>
-                  <tr className="text-sm text-secondary-600">
+                  <tr className="text-sm text-secondary-600 dark:text-secondary-400">
                     <th className="py-2 pr-6">{I.pricing.columns.service}</th>
                     <th className="py-2 pr-6">{I.pricing.columns.range}</th>
                     <th className="py-2">{I.pricing.columns.variables}</th>
                   </tr>
                 </thead>
-                <tbody className="text-secondary-800">
+                <tbody className="text-secondary-800 dark:text-secondary-200">
                   {I.pricing.items.map((row, idx) => {
                     const ranges = [
                       [500, 2000],
@@ -187,7 +187,7 @@ export default function InspectionPage() {
                     const [min, max] = ranges[idx] || [1000, 5000];
                     const label = `${nf.format(min)}–${nf.format(max)}${idx === 1 ? "+" : ""}`;
                     return (
-                      <tr key={idx} className="border-t border-secondary-200">
+                      <tr key={idx} className="border-t border-secondary-200 dark:border-secondary-800">
                         <td className="py-3 pr-6 font-medium">{row.service}</td>
                         <td className="py-3 pr-6">{label}</td>
                         <td className="py-3">{row.variables}</td>
@@ -197,20 +197,20 @@ export default function InspectionPage() {
                 </tbody>
               </table>
             </div>
-            <div className="text-sm text-secondary-500 mt-3">{I.pricing.note}</div>
+            <div className="text-sm text-secondary-500 dark:text-secondary-400 mt-3">{I.pricing.note}</div>
           </Card>
         </div>
       </section>
 
       {/* Conditions */}
-      <section className="py-16 bg-secondary-50">
+      <section className="py-16 bg-secondary-50 dark:bg-secondary-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.h2 className="text-2xl font-bold text-secondary-900 mb-6" initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+          <motion.h2 className="text-2xl font-bold text-secondary-900 dark:text-secondary-100 mb-6" initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
             {I.conditions.title}
           </motion.h2>
           <div className="grid md:grid-cols-2 gap-4">
             {I.conditions.items.map((c, i) => (
-              <Card key={i} padding="md" className="text-secondary-700">{c}</Card>
+              <Card key={i} padding="md" className="text-secondary-700 dark:text-secondary-300">{c}</Card>
             ))}
           </div>
         </div>
@@ -219,7 +219,7 @@ export default function InspectionPage() {
       {/* Request Form */}
       <section id="request" className="py-16">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.h2 className="text-2xl font-bold text-secondary-900 mb-6" initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+          <motion.h2 className="text-2xl font-bold text-secondary-900 dark:text-secondary-100 mb-6" initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
             {I.form.title}
           </motion.h2>
           <Card padding="lg" className="shadow-strong">
@@ -288,7 +288,7 @@ export default function InspectionPage() {
                   {I.form.submit}
                 </Button>
                 {result && (
-                  <div className={result.ok ? "text-success-700" : "text-danger-700"}>
+                  <div className={result.ok ? "text-success-700 dark:text-success-400" : "text-danger-700 dark:text-danger-400"}>
                     {result.ok ? I.form.success : I.form.error}
                   </div>
                 )}
@@ -299,19 +299,19 @@ export default function InspectionPage() {
       </section>
 
       {/* FAQ */}
-      <section className="py-16 bg-secondary-50">
+      <section className="py-16 bg-secondary-50 dark:bg-secondary-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.h2 className="text-2xl font-bold text-secondary-900 mb-6" initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+          <motion.h2 className="text-2xl font-bold text-secondary-900 dark:text-secondary-100 mb-6" initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
             {I.faq.title}
           </motion.h2>
-          <div className="divide-y divide-secondary-200 rounded-xl border border-secondary-200 bg-white">
+          <div className="divide-y divide-secondary-200 dark:divide-secondary-800 rounded-xl border border-secondary-200 dark:border-secondary-800 bg-white dark:bg-secondary-900">
             {I.faq.items.map((item, idx) => (
               <details key={idx} className="p-5 group" open={idx === 0}>
                 <summary className="cursor-pointer list-none flex items-center justify-between">
-                  <span className="font-medium text-secondary-900">{item.q}</span>
-                  <span className="text-secondary-400 group-open:rotate-180 transition-transform">▾</span>
+                  <span className="font-medium text-secondary-900 dark:text-secondary-100">{item.q}</span>
+                  <span className="text-secondary-400 dark:text-secondary-500 group-open:rotate-180 transition-transform">▾</span>
                 </summary>
-                <div className="mt-2 text-secondary-700">{item.a}</div>
+                <div className="mt-2 text-secondary-700 dark:text-secondary-300">{item.a}</div>
               </details>
             ))}
           </div>

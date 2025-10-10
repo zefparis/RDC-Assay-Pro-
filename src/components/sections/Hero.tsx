@@ -29,7 +29,6 @@ const Hero: React.FC = () => {
           className="object-cover object-center scale-110 filter saturate-175 contrast-125 brightness-115"
           style={{ objectPosition: 'center 65%' }}
         />
-        {/* No global overlay to keep the image fully visible */}
       </div>
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -38,12 +37,12 @@ const Hero: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="space-y-6 p-6 max-w-2xl rounded-2xl bg-black/50 backdrop-blur-sm md:bg-black/60"
+              className="space-y-6 p-6 max-w-2xl rounded-2xl bg-black/50 backdrop-blur-sm md:bg-black/60 dark:bg-secondary-800/50 dark:backdrop-blur-sm"
             >
-              <h1 className="text-4xl lg:text-6xl font-extrabold text-white leading-tight drop-shadow-2xl">
+              <h1 className="text-4xl lg:text-6xl font-extrabold text-white leading-tight drop-shadow-2xl dark:text-secondary-100">
                 {t.hero.title}
               </h1>
-              <p className="text-xl text-white/90 leading-relaxed drop-shadow-xl">
+              <p className="text-xl text-white/90 leading-relaxed drop-shadow-xl dark:text-secondary-400">
                 {t.hero.subtitle}
               </p>
             </motion.div>
@@ -52,7 +51,6 @@ const Hero: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="flex flex-col sm:flex-row gap-4"
             >
               <Button
                 size="lg"
@@ -89,14 +87,14 @@ const Hero: React.FC = () => {
             transition={{ duration: 0.6, delay: 0.3 }}
             className="relative"
           >
-            <Card className="p-6 shadow-strong bg-white/70 backdrop-blur-sm">
+            <Card className="p-6 shadow-strong bg-white/70 dark:bg-secondary-900/70 backdrop-blur-sm">
               <div className="flex items-center gap-3 mb-6">
                 <FlaskConical className="w-6 h-6 text-primary-600" />
                 <div>
-                  <h3 className="text-lg font-semibold text-secondary-900">
+                  <h3 className="text-lg font-semibold text-secondary-900 dark:text-secondary-100">
                     {t.dashboard.title}
                   </h3>
-                  <p className="text-sm text-secondary-500">
+                  <p className="text-sm text-secondary-500 dark:text-secondary-400">
                     {t.dashboard.overview}
                   </p>
                 </div>
@@ -110,12 +108,12 @@ const Hero: React.FC = () => {
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.4, delay: 0.5 + index * 0.1 }}
                   >
-                    <Card padding="sm" className="text-center bg-white/80">
+                    <Card padding="sm" className="text-center bg-white/80 dark:bg-secondary-800/50">
                       <stat.icon className={`w-6 h-6 mx-auto mb-2 ${stat.color}`} />
-                      <div className="text-2xl font-bold text-secondary-900 mb-1">
+                      <div className="text-2xl font-bold text-secondary-900 dark:text-secondary-100 mb-1">
                         {stat.value}
                       </div>
-                      <div className="text-xs text-secondary-500">
+                      <div className="text-xs text-secondary-500 dark:text-secondary-400">
                         {stat.label}
                       </div>
                     </Card>

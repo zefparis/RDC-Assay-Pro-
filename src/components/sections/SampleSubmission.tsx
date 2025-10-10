@@ -95,7 +95,7 @@ const SampleSubmission: React.FC = () => {
   };
 
   return (
-    <section id="submit" className="py-20 bg-white">
+    <section id="submit" className="py-20 bg-white dark:bg-secondary-900">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -107,10 +107,10 @@ const SampleSubmission: React.FC = () => {
             <div className="flex items-center gap-3 mb-8">
               <FlaskConical className="w-6 h-6 text-accent-600" />
               <div>
-                <h2 className="text-2xl font-bold text-secondary-900">
+                <h2 className="text-2xl font-bold text-secondary-900 dark:text-secondary-100">
                   {t.submission.title}
                 </h2>
-                <p className="text-secondary-600">
+                <p className="text-secondary-600 dark:text-secondary-400">
                   {t.submission.subtitle}
                 </p>
               </div>
@@ -157,10 +157,10 @@ const SampleSubmission: React.FC = () => {
                 />
               </div>
 
-              <div className="flex items-center justify-between pt-6 border-t border-secondary-200">
+              <div className="flex items-center justify-between pt-6 border-t border-secondary-200 dark:border-secondary-800">
                 <div className="flex items-center gap-3">
-                  <div className="text-sm text-secondary-500">
-                    Endpoint: <code className="bg-secondary-100 px-2 py-1 rounded text-xs">POST /api/samples</code>
+                  <div className="text-sm text-secondary-500 dark:text-secondary-400">
+                    Endpoint: <code className="bg-secondary-100 dark:bg-secondary-800 px-2 py-1 rounded text-xs">POST /api/samples</code>
                   </div>
                   {isAuthenticated ? (
                     <Badge variant="success" size="sm">✓ Connecté</Badge>
@@ -186,15 +186,15 @@ const SampleSubmission: React.FC = () => {
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mt-6 p-4 rounded-xl bg-success-50 border border-success-200"
+                className="mt-6 p-4 rounded-xl bg-success-50 border border-success-200 dark:bg-success-900/20 dark:border-success-800"
               >
                 <div className="flex items-center gap-3">
                   <CheckCircle2 className="w-5 h-5 text-success-600" />
                   <div>
-                    <div className="text-success-800 font-medium">
+                    <div className="text-success-800 dark:text-success-300 font-medium">
                       {t.submission.success}
                     </div>
-                    <div className="text-sm text-success-700 mt-1">
+                    <div className="text-sm text-success-700 dark:text-success-400 mt-1">
                       {t.submission.initialStatus}: <Badge variant="default" size="sm">Received</Badge>
                       <span className="ml-2">ID: <code className="font-mono font-semibold">{success.id}</code></span>
                     </div>
@@ -207,10 +207,10 @@ const SampleSubmission: React.FC = () => {
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mt-6 p-4 rounded-xl bg-danger-50 border border-danger-200 flex items-center gap-3"
+                className="mt-6 p-4 rounded-xl bg-danger-50 border border-danger-200 dark:bg-danger-900/20 dark:border-danger-800 flex items-center gap-3"
               >
                 <AlertCircle className="w-5 h-5 text-danger-600" />
-                <div className="text-danger-800">{error}</div>
+                <div className="text-danger-800 dark:text-danger-300">{error}</div>
               </motion.div>
             )}
           </Card>

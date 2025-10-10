@@ -87,12 +87,12 @@ export default function ClientPortalPage() {
   };
 
   return (
-    <section className="py-14 bg-secondary-50 min-h-[70vh]">
+    <section className="py-14 bg-secondary-50 dark:bg-secondary-900 min-h-[70vh]">
       <Toaster />
       <div className="max-w-4xl mx-auto px-4">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-semibold">Espace Client</h1>
+            <h1 className="text-2xl font-semibold text-secondary-900 dark:text-secondary-100">Espace Client</h1>
             {authorized && email && (
               <Badge variant="accent" size="sm">{email}</Badge>
             )}
@@ -104,15 +104,14 @@ export default function ClientPortalPage() {
             </div>
           )}
         </div>
-
         <Card padding="lg" className="shadow-strong">
-          {loading && <div className="text-secondary-600">Chargement…</div>}
+          {loading && <div className="text-secondary-600 dark:text-secondary-400">Chargement…</div>}
 
           {!loading && authorized === false && (
             <div className="space-y-3">
-              <div className="text-secondary-700">Vous n&apos;êtes pas connecté. Cliquez sur le lien reçu par email pour accéder à votre espace, ou demandez un accès.</div>
+              <div className="text-secondary-700 dark:text-secondary-300">Vous n&apos;êtes pas connecté. Cliquez sur le lien reçu par email pour accéder à votre espace, ou demandez un accès.</div>
               <div className="flex gap-2">
-                <Link href="/access" className="text-primary-600 hover:text-primary-700 font-medium">Demander l&apos;accès</Link>
+                <Link href="/access" className="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 font-medium">Demander l&apos;accès</Link>
               </div>
             </div>
           )}
@@ -121,7 +120,7 @@ export default function ClientPortalPage() {
             <div className="space-y-4">
               {/* Legend */}
               <div className="flex flex-wrap gap-2 text-sm">
-                <span className="text-secondary-600">Légende:</span>
+                <span className="text-secondary-600 dark:text-secondary-400">Légende:</span>
                 <Badge variant="success" size="sm">Reported</Badge>
                 <Badge variant="info" size="sm">In Analysis</Badge>
                 <Badge variant="warning" size="sm">QA/QC</Badge>
@@ -129,14 +128,14 @@ export default function ClientPortalPage() {
               </div>
 
               {items.length === 0 && (
-                <div className="text-secondary-600">Aucun échantillon associé à votre compte pour l&apos;instant.</div>
+                <div className="text-secondary-600 dark:text-secondary-400">Aucun échantillon associé à votre compte pour l&apos;instant.</div>
               )}
               {items.map((it) => (
-                <div key={it.sampleCode} className="p-4 rounded-xl bg-white border border-secondary-200 flex items-center justify-between">
+                <div key={it.sampleCode} className="p-4 rounded-xl bg-white dark:bg-secondary-800 border border-secondary-200 dark:border-secondary-700 flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <Badge variant={variantFor(it.status) as any}>{it.status}</Badge>
-                    <div className="font-mono font-semibold">{it.sampleCode}</div>
-                    <div className="text-sm text-secondary-600">{it.site}</div>
+                    <div className="font-mono font-semibold text-secondary-900 dark:text-secondary-100">{it.sampleCode}</div>
+                    <div className="text-sm text-secondary-600 dark:text-secondary-400">{it.site}</div>
                   </div>
                   <div className="flex items-center gap-3">
                     {it.report?.reportCode ? (
@@ -144,12 +143,12 @@ export default function ClientPortalPage() {
                         href={reportUrl(it.report.reportCode)}
                         target="_blank"
                         rel="noreferrer"
-                        className="text-accent-700 hover:text-accent-800 text-sm"
+                        className="text-accent-700 hover:text-accent-800 dark:text-accent-400 dark:hover:text-accent-300 text-sm"
                       >
                         Télécharger le rapport
                       </a>
                     ) : (
-                      <span className="text-sm text-secondary-500">En cours…</span>
+                      <span className="text-sm text-secondary-500 dark:text-secondary-400">En cours…</span>
                     )}
                   </div>
                 </div>

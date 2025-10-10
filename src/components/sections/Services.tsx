@@ -55,7 +55,7 @@ const Services: React.FC = () => {
   ];
 
   return (
-    <section id="services" className="py-20 bg-white">
+    <section id="services" className="py-20 bg-white dark:bg-secondary-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -64,10 +64,10 @@ const Services: React.FC = () => {
           transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >
-          <h2 className="text-3xl lg:text-4xl font-bold text-secondary-900 mb-4">
+          <h2 className="text-3xl lg:text-4xl font-bold text-secondary-900 dark:text-secondary-100 mb-4">
             {t.services.title}
           </h2>
-          <p className="text-xl text-secondary-600 max-w-3xl mx-auto">
+          <p className="text-xl text-secondary-600 dark:text-secondary-400 max-w-3xl mx-auto">
             Solutions complètes d&apos;analyse minière avec traçabilité numérique et certification internationale
           </p>
         </motion.div>
@@ -93,17 +93,17 @@ const Services: React.FC = () => {
                   <service.icon className={`w-8 h-8 ${service.color}`} />
                 </div>
                 
-                <h3 className="text-xl font-semibold text-secondary-900 mb-3">
+                <h3 className="text-xl font-semibold text-secondary-900 dark:text-secondary-100 mb-3">
                   {service.title}
                 </h3>
                 
-                <p className="text-secondary-600 mb-6">
+                <p className="text-secondary-600 dark:text-secondary-400 mb-6">
                   {service.description}
                 </p>
                 
                 <ul className="space-y-2">
                   {service.features.map((feature, featureIndex) => (
-                    <li key={featureIndex} className="flex items-center gap-2 text-sm text-secondary-600">
+                    <li key={featureIndex} className="flex items-center gap-2 text-sm text-secondary-600 dark:text-secondary-400">
                       <div className={`w-1.5 h-1.5 rounded-full ${service.color.replace('text-', 'bg-')}`} />
                       {feature}
                     </li>
@@ -252,12 +252,12 @@ const Services: React.FC = () => {
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.4 }}
         >
-          <Card padding="lg" className="bg-gradient-to-r from-secondary-50 to-primary-50">
+          <Card padding="lg" className="bg-gradient-to-r from-secondary-50 to-primary-50 dark:from-secondary-900 dark:to-secondary-800">
             <div className="text-center mb-8">
-              <h3 className="text-xl font-semibold text-secondary-900 mb-2">
+              <h3 className="text-xl font-semibold text-secondary-900 dark:text-secondary-100 mb-2">
                 Services Additionnels
               </h3>
-              <p className="text-secondary-600">
+              <p className="text-secondary-600 dark:text-secondary-400">
                 Support complet pour vos opérations minières
               </p>
             </div>
@@ -270,10 +270,10 @@ const Services: React.FC = () => {
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.4, delay: 0.5 + index * 0.1 }}
-                  className="flex items-center gap-3 p-4 rounded-xl bg-white shadow-soft"
+                  className="flex items-center gap-3 p-4 rounded-xl bg-white dark:bg-secondary-800 shadow-soft"
                 >
-                  <feature.icon className="w-5 h-5 text-secondary-600" />
-                  <span className="font-medium text-secondary-900">{feature.label}</span>
+                  <feature.icon className="w-5 h-5 text-secondary-600 dark:text-secondary-300" />
+                  <span className="font-medium text-secondary-900 dark:text-secondary-100">{feature.label}</span>
                 </motion.div>
               ))}
             </div>

@@ -10,11 +10,11 @@ import { useSearchParams } from 'next/navigation';
 export default function AccessRequestPage() {
   return (
     <Suspense fallback={
-      <section className="py-14 bg-secondary-50 min-h-[70vh]">
+      <section className="py-14 bg-secondary-50 dark:bg-secondary-900 min-h-[70vh]">
         <div className="max-w-lg mx-auto px-4">
           <Card padding="lg" className="shadow-strong">
-            <div className="text-2xl font-semibold mb-2">Demander l&apos;accès</div>
-            <p className="text-secondary-600">Chargement…</p>
+            <div className="text-2xl font-semibold text-secondary-900 dark:text-secondary-100 mb-2">Demander l&apos;accès</div>
+            <p className="text-secondary-600 dark:text-secondary-400">Chargement…</p>
           </Card>
         </div>
       </section>
@@ -53,19 +53,19 @@ function AccessRequestInner() {
   };
 
   return (
-    <section className="py-14 bg-secondary-50 min-h-[70vh]">
+    <section className="py-14 bg-secondary-50 dark:bg-secondary-900 min-h-[70vh]">
       <Toaster />
       <div className="max-w-lg mx-auto px-4">
         <Card padding="lg" className="shadow-strong">
-          <div className="text-2xl font-semibold mb-2">Demander l&apos;accès</div>
-          <p className="text-secondary-600 mb-6">Entrez votre email pour demander l&apos;accès au portail client RDC Assay. Nous vous enverrons un lien une fois validé.</p>
+          <div className="text-2xl font-semibold text-secondary-900 dark:text-secondary-100 mb-2">Demander l&apos;accès</div>
+          <p className="text-secondary-600 dark:text-secondary-400 mb-6">Entrez votre email pour demander l&apos;accès au portail client RDC Assay. Nous vous enverrons un lien une fois validé.</p>
           {!submitted ? (
             <div className="flex gap-3">
               <Input type="email" placeholder="your@email.com" value={email} onChange={(e) => setEmail(e.target.value)} className="flex-1" />
               <Button onClick={submit} loading={loading} disabled={!email.trim()}>Envoyer</Button>
             </div>
           ) : (
-            <div className="text-green-600 font-medium">Merci. Votre demande a été enregistrée. Nous vous contacterons par email.</div>
+            <div className="text-green-600 dark:text-green-400 font-medium">Merci. Votre demande a été enregistrée. Nous vous contacterons par email.</div>
           )}
         </Card>
       </div>

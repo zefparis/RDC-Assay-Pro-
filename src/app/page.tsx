@@ -22,7 +22,7 @@ export default function HomePage() {
   const [loginModalOpen, setLoginModalOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-secondary-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-secondary-50 to-white dark:from-secondary-950 dark:to-secondary-900">
       {/* Header */}
       <Header onLoginClick={() => setLoginModalOpen(true)} />
 

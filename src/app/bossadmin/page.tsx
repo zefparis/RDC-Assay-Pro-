@@ -199,7 +199,7 @@ export default function BossAdminPage() {
   };
 
   return (
-    <section className="py-10 sm:py-16 bg-secondary-50 min-h-[80vh]">
+    <section className="py-10 sm:py-16 bg-secondary-50 dark:bg-secondary-900 min-h-[80vh]">
       <Toaster />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>

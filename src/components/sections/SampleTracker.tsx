@@ -53,7 +53,7 @@ const SampleTracker: React.FC = () => {
   };
 
   return (
-    <section id="tracking" className="py-20 bg-secondary-50">
+    <section id="tracking" className="py-20 bg-secondary-50 dark:bg-secondary-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -65,10 +65,10 @@ const SampleTracker: React.FC = () => {
             <div className="flex items-center gap-3 mb-6">
               <Search className="w-6 h-6 text-primary-600" />
               <div>
-                <h2 className="text-2xl font-bold text-secondary-900">
+                <h2 className="text-2xl font-bold text-secondary-900 dark:text-secondary-100">
                   {t.tracking.title}
                 </h2>
-                <p className="text-secondary-600">
+                <p className="text-secondary-600 dark:text-secondary-400">
                   {t.tracking.subtitle}
                 </p>
               </div>
@@ -97,7 +97,7 @@ const SampleTracker: React.FC = () => {
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mb-6 p-4 rounded-xl bg-danger-50 border border-danger-200 flex items-center gap-2 text-danger-700"
+                className="mb-6 p-4 rounded-xl bg-danger-50 border border-danger-200 dark:bg-danger-900/20 dark:border-danger-800 flex items-center gap-2 text-danger-700 dark:text-danger-300"
               >
                 <AlertCircle className="w-4 h-4" />
                 {error}
@@ -120,7 +120,7 @@ const SampleTracker: React.FC = () => {
               </AnimatePresence>
               
               {!loading && samples.length === 0 && (
-                <div className="text-center py-12 text-secondary-500">
+                <div className="text-center py-12 text-secondary-500 dark:text-secondary-400">
                   {t.tracking.noResults}
                 </div>
               )}
@@ -199,14 +199,14 @@ const SampleRow: React.FC<SampleRowProps> = ({ sample }) => {
           <Badge variant={getStatusVariant(sample.status) as any}>
             {t.sample?.status[statusKey(sample.status) as 'received'] || sample.status}
           </Badge>
-          <div className="font-mono font-semibold text-secondary-900">
+          <div className="font-mono font-semibold text-secondary-900 dark:text-secondary-100">
             {looksLikeNumericCode(sample.id) ? formatShortCodeDisplay(sample.id) : sample.id}
           </div>
-          <div className="text-sm text-secondary-600">
+          <div className="text-sm text-secondary-600 dark:text-secondary-400">
             {sample.site} • {sample.mineral}
           </div>
           {sample.grade && (
-            <div className="text-sm font-medium text-secondary-900">
+            <div className="text-sm font-medium text-secondary-900 dark:text-secondary-100">
               {sample.grade} {sample.unit}
             </div>
           )}
@@ -231,36 +231,36 @@ const SampleRow: React.FC<SampleRowProps> = ({ sample }) => {
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3 }}
-            className="mt-6 pt-6 border-t border-secondary-200"
+            className="mt-6 pt-6 border-t border-secondary-200 dark:border-secondary-800"
           >
             <div className="grid md:grid-cols-3 gap-6 mb-6">
               <div>
-                <div className="text-sm text-secondary-500 mb-1">{t.tracking.mineral}</div>
-                <div className="font-semibold text-secondary-900">{details.mineral}</div>
+                <div className="text-sm text-secondary-500 dark:text-secondary-400 mb-1">{t.tracking.mineral}</div>
+                <div className="font-semibold text-secondary-900 dark:text-secondary-100">{details.mineral}</div>
               </div>
               <div>
-                <div className="text-sm text-secondary-500 mb-1">{t.tracking.site}</div>
-                <div className="font-semibold text-secondary-900">{details.site}</div>
+                <div className="text-sm text-secondary-500 dark:text-secondary-400 mb-1">{t.tracking.site}</div>
+                <div className="font-semibold text-secondary-900 dark:text-secondary-100">{details.site}</div>
               </div>
               <div className="flex items-center gap-2">
-                <QrCode className="w-4 h-4 text-secondary-600" />
-                <div className="text-sm text-secondary-600">{t.tracking.qrTraceability}</div>
+                <QrCode className="w-4 h-4 text-secondary-600 dark:text-secondary-400" />
+                <div className="text-sm text-secondary-600 dark:text-secondary-400">{t.tracking.qrTraceability}</div>
               </div>
             </div>
 
             {details.timeline && (
               <div>
-                <div className="text-sm text-secondary-500 mb-3">{t.tracking.timeline}</div>
+                <div className="text-sm text-secondary-500 dark:text-secondary-400 mb-3">{t.tracking.timeline}</div>
                 <div className="flex flex-wrap gap-4">
                   {details.timeline.map((event, index) => (
                     <div key={index} className="flex items-center gap-2">
                       {getStatusIcon(event.label, event.done)}
                       <div className="text-sm">
-                        <span className={`font-medium ${event.done ? 'text-secondary-900' : 'text-secondary-500'}`}>
+                        <span className={`font-medium ${event.done ? 'text-secondary-900 dark:text-secondary-100' : 'text-secondary-500 dark:text-secondary-400'}`}>
                           {t.sample?.status[statusKey(event.label) as 'received'] || event.label}
                         </span>
                         {event.when && (
-                          <span className="text-secondary-500 ml-2">• {event.when}</span>
+                          <span className="text-secondary-500 dark:text-secondary-400 ml-2">• {event.when}</span>
                         )}
                       </div>
                     </div>
@@ -273,15 +273,15 @@ const SampleRow: React.FC<SampleRowProps> = ({ sample }) => {
             {(details.technician || details.estimatedCompletion) && (
               <div className="mt-4 grid sm:grid-cols-2 gap-4">
                 {details.technician && (
-                  <div className="p-3 rounded-lg bg-secondary-50">
-                    <div className="text-sm text-secondary-500 mb-1">Technicien</div>
-                    <div className="text-sm text-secondary-700">{details.technician}</div>
+                  <div className="p-3 rounded-lg bg-secondary-50 dark:bg-secondary-800">
+                    <div className="text-sm text-secondary-500 dark:text-secondary-400 mb-1">Technicien</div>
+                    <div className="text-sm text-secondary-700 dark:text-secondary-300">{details.technician}</div>
                   </div>
                 )}
                 {details.estimatedCompletion && (
-                  <div className="p-3 rounded-lg bg-secondary-50">
-                    <div className="text-sm text-secondary-500 mb-1">ETA</div>
-                    <div className="text-sm text-secondary-700">{details.estimatedCompletion}</div>
+                  <div className="p-3 rounded-lg bg-secondary-50 dark:bg-secondary-800">
+                    <div className="text-sm text-secondary-500 dark:text-secondary-400 mb-1">ETA</div>
+                    <div className="text-sm text-secondary-700 dark:text-secondary-300">{details.estimatedCompletion}</div>
                   </div>
                 )}
               </div>
@@ -295,19 +295,19 @@ const SampleRow: React.FC<SampleRowProps> = ({ sample }) => {
                   alt={`QR ${details.id}`}
                   width={112}
                   height={112}
-                  className="rounded-lg bg-white p-1 border border-secondary-200 shadow-sm"
+                  className="rounded-lg bg-white p-1 border border-secondary-200 dark:border-secondary-700 shadow-sm"
                 />
                 <div>
-                  <div className="text-sm text-secondary-500 mb-1">{t.tracking.qrTraceability}</div>
-                  <div className="text-sm text-secondary-700">Scannez ce QR pour accéder au suivi public.</div>
+                  <div className="text-sm text-secondary-500 dark:text-secondary-400 mb-1">{t.tracking.qrTraceability}</div>
+                  <div className="text-sm text-secondary-700 dark:text-secondary-300">Scannez ce QR pour accéder au suivi public.</div>
                 </div>
               </div>
             )}
 
             {details.notes && (
-              <div className="mt-4 p-3 rounded-lg bg-secondary-50">
-                <div className="text-sm text-secondary-500 mb-1">Notes</div>
-                <div className="text-sm text-secondary-700">{details.notes}</div>
+              <div className="mt-4 p-3 rounded-lg bg-secondary-50 dark:bg-secondary-800">
+                <div className="text-sm text-secondary-500 dark:text-secondary-400 mb-1">Notes</div>
+                <div className="text-sm text-secondary-700 dark:text-secondary-300">{details.notes}</div>
               </div>
             )}
           </motion.div>

@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { LogIn, LogOut, Menu, X, Globe, User } from 'lucide-react';
+import { LogIn, LogOut, Menu, X, Globe, User, Sun, Moon } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/hooks/useAuth';
 import Button from '@/components/ui/Button';
 import Badge from '@/components/ui/Badge';
+import { useTheme } from '@/hooks/useTheme';
 
 interface HeaderProps {
   onLoginClick?: () => void;
@@ -16,6 +17,7 @@ const Header: React.FC<HeaderProps> = ({ onLoginClick }) => {
   const { isAuthenticated, user, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [hasClientToken, setHasClientToken] = useState(false);
+  const { isDark, toggleTheme } = useTheme();
 
   const navItems = [
     { key: 'services', href: '/#services', label: t.nav.services },
@@ -36,7 +38,7 @@ const Header: React.FC<HeaderProps> = ({ onLoginClick }) => {
   }, []);
 
   return (
-    <header className="sticky top-0 z-50 backdrop-blur-xl bg-white/80 border-b border-secondary-200/80 shadow-soft">
+    <header className="sticky top-0 z-50 backdrop-blur-xl bg-white/80 dark:bg-secondary-950/70 border-b border-secondary-200/80 dark:border-secondary-800/60 shadow-soft">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -49,7 +51,7 @@ const Header: React.FC<HeaderProps> = ({ onLoginClick }) => {
               G
             </motion.div>
             <div className="flex items-center gap-2">
-              <span className="font-bold text-xl text-secondary-900">GeoCert Africa</span>
+              <span className="font-bold text-xl text-secondary-900 dark:text-white">GeoCert Africa</span>
               <Badge variant="accent" size="sm">Filiale de SGS</Badge>
             </div>
           </div>
@@ -61,7 +63,7 @@ const Header: React.FC<HeaderProps> = ({ onLoginClick }) => {
                 <Link
                   key={item.key}
                   href={item.href}
-                  className="text-secondary-700 hover:text-primary-700 font-medium transition-colors duration-200"
+                  className="text-secondary-700 hover:text-primary-700 dark:text-secondary-200 dark:hover:text-primary-400 font-medium transition-colors duration-200"
                 >
                   {item.label}
                 </Link>
@@ -69,14 +71,14 @@ const Header: React.FC<HeaderProps> = ({ onLoginClick }) => {
                 <a
                   key={item.key}
                   href={item.href}
-                  className="text-secondary-700 hover:text-primary-700 font-medium transition-colors duration-200"
+                  className="text-secondary-700 hover:text-primary-700 dark:text-secondary-200 dark:hover:text-primary-400 font-medium transition-colors duration-200"
                 >
                   {item.label}
                 </a>
               )
             ))}
             {hasClientToken && (
-              <Link href="/client" className="inline-flex items-center gap-2 font-semibold text-accent-700 hover:text-accent-800 transition-colors">
+              <Link href="/client" className="inline-flex items-center gap-2 font-semibold text-accent-700 hover:text-accent-800 dark:text-accent-400 dark:hover:text-accent-300 transition-colors">
                 <span>Client</span>
                 <span className="inline-block w-2 h-2 rounded-full bg-accent-500" />
               </Link>
@@ -85,6 +87,15 @@ const Header: React.FC<HeaderProps> = ({ onLoginClick }) => {
 
           {/* Actions */}
           <div className="flex items-center gap-3">
+            {/* Theme Toggle */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={toggleTheme}
+              icon={isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              title={isDark ? 'Mode clair' : 'Mode sombre'}
+              className="hidden sm:flex"
+            />
             {/* Language Toggle */}
             <Button
               variant="ghost"
@@ -140,7 +151,7 @@ const Header: React.FC<HeaderProps> = ({ onLoginClick }) => {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden border-t border-secondary-200 py-4"
+            className="md:hidden border-t border-secondary-200 dark:border-secondary-800 py-4"
           >
             <div className="flex flex-col gap-3">
               {navItems.map((item) => (
@@ -148,7 +159,7 @@ const Header: React.FC<HeaderProps> = ({ onLoginClick }) => {
                   <Link
                     key={item.key}
                     href={item.href}
-                    className="text-secondary-700 hover:text-primary-700 font-medium py-2 transition-colors duration-200"
+                    className="text-secondary-700 hover:text-primary-700 dark:text-secondary-200 dark:hover:text-primary-400 font-medium py-2 transition-colors duration-200"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     {item.label}
@@ -157,7 +168,7 @@ const Header: React.FC<HeaderProps> = ({ onLoginClick }) => {
                   <a
                     key={item.key}
                     href={item.href}
-                    className="text-secondary-700 hover:text-primary-700 font-medium py-2 transition-colors duration-200"
+                    className="text-secondary-700 hover:text-primary-700 dark:text-secondary-200 dark:hover:text-primary-400 font-medium py-2 transition-colors duration-200"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     {item.label}
@@ -167,14 +178,23 @@ const Header: React.FC<HeaderProps> = ({ onLoginClick }) => {
               {hasClientToken && (
                 <Link
                   href="/client"
-                  className="inline-flex items-center gap-2 font-semibold text-accent-700 hover:text-accent-800 py-2 transition-colors"
+                  className="inline-flex items-center gap-2 font-semibold text-accent-700 hover:text-accent-800 dark:text-accent-400 dark:hover:text-accent-300 py-2 transition-colors"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <span>Client</span>
                   <span className="inline-block w-2 h-2 rounded-full bg-accent-500" />
                 </Link>
               )}
-              <div className="flex items-center gap-2 pt-2 border-t border-secondary-200">
+              <div className="flex items-center gap-2 pt-2 border-t border-secondary-200 dark:border-secondary-800">
+                {/* Theme toggle - mobile */}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={toggleTheme}
+                  icon={isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                >
+                  {isDark ? 'Clair' : 'Sombre'}
+                </Button>
                 <Button
                   variant="ghost"
                   size="sm"
