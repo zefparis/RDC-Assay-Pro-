@@ -42,7 +42,7 @@ const Hero: React.FC = () => {
               <h1 className="text-4xl lg:text-6xl font-extrabold text-white leading-tight drop-shadow-2xl dark:text-secondary-100">
                 {t.hero.title}
               </h1>
-              <p className="text-xl text-white/90 leading-relaxed drop-shadow-xl dark:text-secondary-400">
+              <p className="text-xl text-warning-400 leading-relaxed drop-shadow-xl">
                 {t.hero.subtitle}
               </p>
             </motion.div>
@@ -61,9 +61,8 @@ const Hero: React.FC = () => {
               </Button>
               <Button
                 size="lg"
-                variant="outline"
                 onClick={() => document.getElementById('tracking')?.scrollIntoView({ behavior: 'smooth' })}
-                className="border-white/70 text-white hover:bg-white/10"
+                className="ml-3 bg-warning-600 hover:bg-warning-700 text-white shadow-lg"
               >
                 {t.hero.trackSample}
               </Button>
