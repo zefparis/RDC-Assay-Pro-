@@ -48,7 +48,7 @@ const Footer: React.FC = () => {
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-600 to-primary-700 text-white grid place-items-center font-bold text-lg">
                 G
               </div>
-              <span className="font-bold text-xl">GeoCert Africa</span>
+              <span className="font-bold text-xl">RDC LAB</span>
             </div>
             <p className="text-secondary-300 mb-6 leading-relaxed">
               {t.footer.description}
@@ -144,7 +144,7 @@ const Footer: React.FC = () => {
           className="border-t border-secondary-800 mt-12 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4"
         >
           <div className="text-sm text-secondary-400">
-            © 2025 GeoCert Africa — Filiale de SGS. Tous droits réservés.
+            © 2025 RDC LAB — Filiale de SGS. Tous droits réservés.
           </div>
           <div className="flex gap-6 text-sm text-secondary-400">
             <a href="#" className="hover:text-white transition-colors">Politique de confidentialité</a>

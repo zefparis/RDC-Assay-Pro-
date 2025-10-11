@@ -5,12 +5,12 @@ import './globals.css';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'GeoCert Africa — Filiale de SGS | Mineral Analysis & Certification',
-  description: 'GeoCert Africa — Filiale de SGS. Sampling, analysis, certification and digital traceability for mining operations.',
-  keywords: 'geocert africa, sgs, mineral analysis, assay, certification, mining, laboratory, traceability',
-  authors: [{ name: 'GeoCert Africa' }],
+  title: 'RDC LAB — Filiale de SGS | Mineral Analysis & Certification',
+  description: 'RDC LAB — Filiale de SGS. Sampling, analysis, certification and digital traceability for mining operations.',
+  keywords: 'rdc lab, sgs, mineral analysis, assay, certification, mining, laboratory, traceability',
+  authors: [{ name: 'RDC LAB' }],
   openGraph: {
-    title: 'GeoCert Africa — Filiale de SGS',
+    title: 'RDC LAB — Filiale de SGS',
     description: 'Mineral analysis & certification platform',
     type: 'website',
     locale: 'fr_FR',
