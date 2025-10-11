@@ -47,12 +47,37 @@ const Services: React.FC = () => {
     },
   ];
 
+  const [expanded, setExpanded] = useState<string | null>(null);
   const additionalFeatures = [
-    { icon: Truck, label: t.services.supervision },
-    { icon: Microscope, label: 'Mineralogy' },
-    { icon: FileCheck, label: 'Quality Control' },
-    { icon: QrCode, label: 'Digital Tracking' },
-  ];
+    {
+      key: 'supervision',
+      icon: Truck,
+      label: t.services.supervision,
+      description:
+        "Organisation logistique complète: planification des ramassages, chaîne de garde, conditionnement sécurisé et acheminement des minerais et terres rares jusqu'aux laboratoires partenaires.",
+    },
+    {
+      key: 'mineralogy',
+      icon: Microscope,
+      label: 'Mineralogy',
+      description:
+        "Analyses réalisées par FILAB (partenaire). Méthodes couvrant XRF, ICP‑OES/MS, fire assay et tests complémentaires. Nous coordonnons la demande, le suivi et la restitution des résultats.",
+    },
+    {
+      key: 'qc',
+      icon: FileCheck,
+      label: 'Quality Control',
+      description:
+        "Contrôles QA/QC sur l'ensemble du cycle: échantillons blancs/doubles, standards de référence, traçabilité et audit. Conformité aux normes internationales.",
+    },
+    {
+      key: 'digital',
+      icon: QrCode,
+      label: 'Digital Tracking',
+      description:
+        "Résultats intégrés dans l'application: tableau de bord, QR Code de traçabilité et rapport PDF téléchargeable. Sécurité et intégrité garanties (hash, signature).",
+    },
+  ] as Array<{ key: string; icon: any; label: string; description: string }>;
 
   return (
     <section id="services" className="py-20 bg-white dark:bg-secondary-900">
@@ -257,23 +282,37 @@ const Services: React.FC = () => {
               <h3 className="text-xl font-semibold text-secondary-900 dark:text-secondary-100 mb-2">
                 Services Additionnels
               </h3>
-              <p className="text-secondary-600 dark:text-secondary-400">
-                Support complet pour vos opérations minières
+              <p className="text-secondary-700 dark:text-secondary-300 max-w-4xl mx-auto">
+                Nous nous spécialisons dans l&apos;organisation, la collecte et l&apos;acheminement des minerais et terres rares vers nos laboratoires partenaires FILAB.
+                FILAB réalise l&apos;analyse complète. Les résultats sont restitués dans votre application sous forme de tableau de bord,
+                QR code de traçabilité et rapport PDF téléchargeable, selon des standards de sécurité internationaux.
               </p>
             </div>
             
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {additionalFeatures.map((feature, index) => (
                 <motion.div
-                  key={feature.label}
+                  key={feature.key}
                   initial={{ opacity: 0, scale: 0.8 }}
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.4, delay: 0.5 + index * 0.1 }}
-                  className="flex items-center gap-3 p-4 rounded-xl bg-white dark:bg-secondary-800 shadow-soft"
+                  className="p-0 rounded-xl bg-white dark:bg-secondary-800 shadow-soft overflow-hidden"
                 >
-                  <feature.icon className="w-5 h-5 text-secondary-600 dark:text-secondary-300" />
-                  <span className="font-medium text-secondary-900 dark:text-secondary-100">{feature.label}</span>
+                  <button
+                    className="w-full text-left p-4 flex items-start gap-3"
+                    onClick={() => setExpanded(expanded === feature.key ? null : feature.key)}
+                  >
+                    <feature.icon className="w-5 h-5 mt-0.5 text-secondary-600 dark:text-secondary-300" />
+                    <div>
+                      <div className="font-medium text-secondary-900 dark:text-secondary-100">{feature.label}</div>
+                      {expanded === feature.key && (
+                        <div className="mt-2 text-sm text-secondary-600 dark:text-secondary-300">
+                          {feature.description}
+                        </div>
+                      )}
+                    </div>
+                  </button>
                 </motion.div>
               ))}
             </div>
